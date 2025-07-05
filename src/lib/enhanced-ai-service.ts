@@ -238,20 +238,17 @@ class EnhancedAIService {
         message: message.substring(0, 50) + "...",
       });
 
-      const { data, error } = await supabase.functions.invoke(
-        "openrouter-chat",
-        {
-          body: {
-            message: message.trim(),
-            chatHistory: this.chatHistory.slice(-10).map((chat) => ({
-              role: chat.role,
-              message: chat.message,
-              timestamp: chat.timestamp.toISOString(),
-            })),
-            userId,
-          },
+      const { data, error } = await supabase.functions.invoke("ai-coach-chat", {
+        body: {
+          message: message.trim(),
+          chatHistory: this.chatHistory.slice(-10).map((chat) => ({
+            role: chat.role,
+            message: chat.message,
+            timestamp: chat.timestamp.toISOString(),
+          })),
+          userId,
         },
-      );
+      });
 
       console.log("🤖 OpenRouter response:", { data, error });
 
