@@ -67,7 +67,7 @@ serve(async (req: Request) => {
     console.log(`[${requestId}] Using API key: ${API_KEY.substring(0, 10)}...`);
 
     const API_URL = "https://openrouter.ai/api/v1/chat/completions";
-    const MODEL = "deepseek/deepseek-r1-0528-qwen3-8b"; // Check deze modelnaam in jouw OpenRouter dashboard
+    const MODEL = "deepseek/deepseek-r1-0528-qwen3-8b:free";
 
     // Messages opbouwen
     const messages = [
