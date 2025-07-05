@@ -130,7 +130,7 @@ const LandingPage = () => {
                 <button
                   onClick={() => setLanguage("nl")}
                   className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all duration-200 ${
-                    currentLanguage === "nl"
+                    language === "nl"
                       ? "bg-white text-blue-600 shadow-sm"
                       : "text-gray-600 hover:text-gray-900"
                   }`}
@@ -140,7 +140,7 @@ const LandingPage = () => {
                 <button
                   onClick={() => setLanguage("en")}
                   className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all duration-200 ${
-                    currentLanguage === "en"
+                    language === "en"
                       ? "bg-white text-blue-600 shadow-sm"
                       : "text-gray-600 hover:text-gray-900"
                   }`}
