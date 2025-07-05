@@ -23,6 +23,7 @@ const supabase = createClient(
 );
 
 const AuthPage = () => {
+  const { t } = useTranslation();
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
     fullName: "",
