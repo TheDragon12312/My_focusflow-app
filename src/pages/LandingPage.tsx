@@ -174,21 +174,19 @@ const LandingPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="text-center">
             <Badge className="bg-blue-100 text-blue-700 border-blue-200 mb-6 animate-bounce">
-              #1 Productivity App of 2024 🏆
+              {t("landing.topApp2024")}
             </Badge>
 
             <h1 className="text-5xl md:text-7xl font-bold text-gray-900 mb-6 leading-tight">
-              Transform Your
+              {t("landing.heroTitle")}
               <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent block">
-                Productivity Forever
+                {t("landing.heroTitleSpan")}
               </span>
             </h1>
 
             <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
-              Master deep focus with AI-powered coaching, smart distraction
-              blocking, and seamless team collaboration. Join{" "}
-              {activeUsers.toLocaleString()}+ professionals boosting their
-              productivity daily.
+              {t("landing.heroDescription")} {activeUsers.toLocaleString()}
+              {t("landing.heroDescriptionEnd")}
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6 mb-12">
