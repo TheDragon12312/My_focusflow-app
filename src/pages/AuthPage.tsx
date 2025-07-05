@@ -147,7 +147,7 @@ const AuthPage = () => {
               {!isLogin && (
                 <div className="space-y-2">
                   <Label htmlFor="fullName" className="text-gray-700">
-                    Volledige naam
+                    {t("auth.fullName")}
                   </Label>
                   <div className="relative">
                     <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -155,7 +155,7 @@ const AuthPage = () => {
                       id="fullName"
                       name="fullName"
                       type="text"
-                      placeholder="Je volledige naam"
+                      placeholder={t("auth.fullNamePlaceholder")}
                       value={formData.fullName}
                       onChange={handleChange}
                       required={!isLogin}
@@ -167,7 +167,7 @@ const AuthPage = () => {
 
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-gray-700">
-                  E-mailadres
+                  {t("auth.emailAddress")}
                 </Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -175,7 +175,7 @@ const AuthPage = () => {
                     id="email"
                     name="email"
                     type="email"
-                    placeholder="je@email.com"
+                    placeholder={t("auth.emailPlaceholder")}
                     value={formData.email}
                     onChange={handleChange}
                     required
@@ -186,7 +186,7 @@ const AuthPage = () => {
 
               <div className="space-y-2">
                 <Label htmlFor="password" className="text-gray-700">
-                  Wachtwoord
+                  {t("auth.password")}
                 </Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -194,7 +194,7 @@ const AuthPage = () => {
                     id="password"
                     name="password"
                     type="password"
-                    placeholder="Je wachtwoord"
+                    placeholder={t("auth.passwordPlaceholder")}
                     value={formData.password}
                     onChange={handleChange}
                     required
@@ -206,7 +206,7 @@ const AuthPage = () => {
               {!isLogin && (
                 <div className="space-y-2">
                   <Label htmlFor="confirmPassword" className="text-gray-700">
-                    Bevestig wachtwoord
+                    {t("auth.confirmPassword")}
                   </Label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -214,7 +214,7 @@ const AuthPage = () => {
                       id="confirmPassword"
                       name="confirmPassword"
                       type="password"
-                      placeholder="Bevestig je wachtwoord"
+                      placeholder={t("auth.confirmPasswordPlaceholder")}
                       value={formData.confirmPassword}
                       onChange={handleChange}
                       required={!isLogin}
