@@ -195,7 +195,7 @@ const LandingPage = () => {
                 className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 text-lg font-semibold rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 w-full sm:w-auto"
               >
                 <Play className="h-5 w-5 mr-2" />
-                Start Your Free Trial
+                {t("landing.startFreeTrial")}
               </Button>
 
               <Button
@@ -204,7 +204,7 @@ const LandingPage = () => {
                 className="border-2 border-blue-600 text-blue-600 hover:bg-blue-50 px-8 py-4 text-lg font-semibold rounded-xl transition-all duration-300 hover:scale-105 w-full sm:w-auto"
               >
                 <Sparkles className="h-5 w-5 mr-2" />
-                Watch 2-Min Demo
+                {t("landing.watchDemo")}
               </Button>
             </div>
 
