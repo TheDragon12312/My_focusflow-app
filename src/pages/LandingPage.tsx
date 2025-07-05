@@ -75,7 +75,7 @@ const LandingPage = () => {
       content:
         "My team's productivity has skyrocketed since we started using FocusFlow. The collaboration features are fantastic!",
       rating: 5,
-      avatar: "👩‍🎨",
+      avatar: "👩���🎨",
     },
   ];
 
@@ -367,10 +367,10 @@ const LandingPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              Simple, Transparent Pricing
+              {t("landing.pricingTitle")}
             </h2>
             <p className="text-xl text-gray-600">
-              Choose the plan that fits your productivity needs
+              {t("landing.pricingSubtitle")}
             </p>
           </div>
 
