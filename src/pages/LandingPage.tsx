@@ -28,17 +28,10 @@ import {
 
 const LandingPage = () => {
   const navigate = useNavigate();
+  const { t, language, setLanguage } = useTranslation();
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
   const [activeUsers, setActiveUsers] = useState(2847);
   const [completedSessions, setCompletedSessions] = useState(34521);
-  const [currentLanguage, setCurrentLanguage] = useState<Language>(
-    i18n.getCurrentLanguage(),
-  );
-
-  const setLanguage = (lang: Language) => {
-    i18n.setLanguage(lang);
-    setCurrentLanguage(lang);
-  };
 
   // Animate numbers for psychological effect
   useEffect(() => {
