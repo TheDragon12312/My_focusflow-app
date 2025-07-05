@@ -9,28 +9,34 @@ export async function testOpenRouterConnection(): Promise<{
   message: string;
   response?: string;
   error?: string;
+  fullData?: any;
 }> {
   try {
     console.log("🧪 Testing OpenRouter AI connection...");
 
     const testMessage =
-      "Hoi! Dit is een test bericht. Antwoord kort met 'Test succesvol!'";
+      "Test bericht: Zeg alleen 'OpenRouter werkt!' als je dit via OpenRouter ontvangt.";
+
+    console.log("🧪 Sending test request to ai-coach-chat function...");
 
     const { data, error } = await supabase.functions.invoke("ai-coach-chat", {
       body: {
         message: testMessage,
         chatHistory: [],
-        userId: "test-user",
+        userId: "test-user-debug",
       },
     });
 
-    console.log("🧪 Test response:", { data, error });
+    console.log("🧪 Function response:", { data, error });
+    console.log("🧪 Full data object:", data);
 
     if (error) {
+      console.error("🧪 Supabase function error:", error);
       return {
         success: false,
         message: "Supabase function call failed",
-        error: JSON.stringify(error),
+        error: JSON.stringify(error, null, 2),
+        fullData: { data, error },
       };
     }
 
@@ -39,28 +45,57 @@ export async function testOpenRouterConnection(): Promise<{
         success: false,
         message: "No data received from function",
         error: "Empty response",
+        fullData: { data, error },
       };
     }
 
+    // Check if we have a response
     if (!data.response) {
       return {
         success: false,
         message: "No AI response in data",
-        error: JSON.stringify(data),
+        error: "Missing response field",
+        fullData: data,
       };
     }
 
+    // Check if this is a fallback response (contains certain keywords)
+    const response = data.response;
+    const isFallback =
+      response.includes("problemen met mijn verbinding") ||
+      response.includes("technische storing") ||
+      response.includes("kan je momenteel niet helpen") ||
+      response.includes("API key");
+
+    if (isFallback) {
+      return {
+        success: false,
+        message: "Received fallback response instead of OpenRouter AI",
+        error: "OpenRouter API call is failing inside the function",
+        response: response,
+        fullData: data,
+      };
+    }
+
+    // Check for specific success indicators
+    const isOpenRouterResponse =
+      response.includes("OpenRouter werkt!") || response.length > 50; // Real AI responses are usually longer
+
     return {
-      success: true,
-      message: "OpenRouter AI connection successful!",
-      response: data.response,
+      success: isOpenRouterResponse,
+      message: isOpenRouterResponse
+        ? "OpenRouter AI connection successful!"
+        : "Received response but may be fallback",
+      response: response,
+      fullData: data,
     };
   } catch (error) {
-    console.error("🧪 Test failed:", error);
+    console.error("🧪 Test failed with exception:", error);
     return {
       success: false,
       message: "Test threw an exception",
       error: error instanceof Error ? error.message : String(error),
+      fullData: null,
     };
   }
 }
