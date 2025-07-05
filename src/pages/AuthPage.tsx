@@ -135,12 +135,10 @@ const AuthPage = () => {
               <Target className="h-8 w-8 text-white" />
             </div>
             <CardTitle className="text-2xl font-bold text-gray-900">
-              {isLogin ? "Welkom terug" : "Account aanmaken"}
+              {isLogin ? t("auth.welcomeBack") : t("auth.createAccount")}
             </CardTitle>
             <CardDescription className="text-gray-600">
-              {isLogin
-                ? "Log in op je FocusFlow account"
-                : "Maak je gratis FocusFlow account aan"}
+              {isLogin ? t("auth.loginToAccount") : t("auth.createFreeAccount")}
             </CardDescription>
           </CardHeader>
 
