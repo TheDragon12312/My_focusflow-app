@@ -3,7 +3,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 // OpenRouter API configuratie
 const OPENROUTER_API_KEY = Deno.env.get("OPENROUTER_API_KEY");
 const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
-const OPENROUTER_MODEL = "mistralai/mistral-7b-instruct:free";
+const OPENROUTER_MODEL = "deepseek/deepseek-r1-0528-qwen3-8b:free";
 
 // CORS headers voor alle responses
 const corsHeaders = {
@@ -44,7 +44,7 @@ Antwoord altijd in het Nederlands.`;
 
 // Fallback antwoorden
 const FALLBACK_RESPONSES = [
-  "Sorry, ik kan je momenteel niet helpen door een technische storing. Neem even een pauze en probeer het opnieuw! 😊",
+  "Sorry, ik kan je momenteel niet helpen door een technische storing. Neem even een pauze en probeer het opnieuw! ��",
   "Er ging iets mis met mijn verbinding. Hier is een snelle tip: probeer de 2-minuten regel - als iets minder dan 2 minuten duurt, doe het meteen! 🚀",
   "Technische problemen van mijn kant! Een productiviteitstip: schrijf je top 3 prioriteiten voor vandaag op. Focus op wat echt belangrijk is! ✨",
 ];
