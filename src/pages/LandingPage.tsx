@@ -75,7 +75,7 @@ const LandingPage = () => {
       content:
         "My team's productivity has skyrocketed since we started using FocusFlow. The collaboration features are fantastic!",
       rating: 5,
-      avatar: "👩���🎨",
+      avatar: "👩‍🎨",
     },
   ];
 
@@ -377,49 +377,65 @@ const LandingPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             {[
               {
-                name: "Free",
+                name: t("landing.free"),
                 price: "$0",
-                period: "forever",
-                description: "Perfect for getting started",
+                period: t("landing.freeForever"),
+                description: t("landing.freeDesc"),
                 features: [
-                  "Up to 5 focus sessions per day",
-                  "Basic statistics",
-                  "Simple timer",
-                  "Email support",
+                  language === "nl"
+                    ? "Tot 5 focussessies per dag"
+                    : "Up to 5 focus sessions per day",
+                  language === "nl" ? "Basis statistieken" : "Basic statistics",
+                  language === "nl" ? "Eenvoudige timer" : "Simple timer",
+                  language === "nl" ? "E-mail ondersteuning" : "Email support",
                 ],
-                cta: "Get Started",
+                cta: t("landing.getStartedFree"),
                 popular: false,
               },
               {
-                name: "Pro",
+                name: t("landing.pro"),
                 price: "$9.99",
-                period: "per month",
-                description: "For serious professionals",
+                period: t("landing.proPrice"),
+                description: t("landing.proDesc"),
                 features: [
-                  "Unlimited focus sessions",
-                  "AI productivity coach",
-                  "Advanced analytics",
-                  "Calendar integration",
-                  "Distraction blocking",
-                  "Priority support",
+                  language === "nl"
+                    ? "Onbeperkte focussessies"
+                    : "Unlimited focus sessions",
+                  language === "nl"
+                    ? "AI productiviteitscoach"
+                    : "AI productivity coach",
+                  language === "nl"
+                    ? "Geavanceerde analytics"
+                    : "Advanced analytics",
+                  language === "nl"
+                    ? "Agenda integratie"
+                    : "Calendar integration",
+                  language === "nl"
+                    ? "Afleidingsblokkering"
+                    : "Distraction blocking",
+                  language === "nl"
+                    ? "Prioriteitsondersteuning"
+                    : "Priority support",
                 ],
-                cta: "Start Free Trial",
+                cta: t("landing.startFreeTrial"),
                 popular: true,
               },
               {
-                name: "Team",
+                name: t("landing.team"),
                 price: "$19.99",
-                period: "per month",
-                description: "For high-performing teams",
+                period: t("landing.proPrice"),
+                description: t("landing.teamDesc"),
                 features: [
-                  "Everything in Pro",
-                  "Team collaboration",
-                  "Shared analytics",
-                  "Admin dashboard",
-                  "SSO integration",
-                  "Dedicated support",
+                  language === "nl" ? "Alles van Pro" : "Everything in Pro",
+                  language === "nl" ? "Teamcollaboratie" : "Team collaboration",
+                  language === "nl" ? "Gedeelde analytics" : "Shared analytics",
+                  language === "nl" ? "Admin dashboard" : "Admin dashboard",
+                  language === "nl" ? "SSO integratie" : "SSO integration",
+                  language === "nl"
+                    ? "Toegewijde ondersteuning"
+                    : "Dedicated support",
                 ],
-                cta: "Contact Sales",
+                cta: t("landing.contactSales"),
                 popular: false,
               },
             ].map((plan, index) => (
