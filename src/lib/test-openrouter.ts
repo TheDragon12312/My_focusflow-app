@@ -239,4 +239,6 @@ export async function testAndLog() {
 if (typeof window !== "undefined") {
   (window as any).testOpenRouter = testAndLog;
   (window as any).testOpenRouterConnection = testOpenRouterConnection;
+  (window as any).testDirectOpenRouterAPI = testDirectOpenRouterAPI;
+  (window as any).testOpenRouterFull = testAndLog;
 }
