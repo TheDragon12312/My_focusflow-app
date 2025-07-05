@@ -47,17 +47,24 @@ serve(async (req: Request) => {
       });
     }
 
-    const API_KEY = Deno.env.get("OPENROUTER_API_KEY");
+    const API_KEY =
+      Deno.env.get("OPENROUTER_API_KEY") ||
+      "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";
+
     if (!API_KEY) {
-      console.error(`[${requestId}] Geen API key gevonden in environment`);
+      console.error(`[${requestId}] Geen API key beschikbaar`);
       return new Response(
         JSON.stringify({
-          response:
-            "❌ Geen OpenRouter API key gevonden. Stel de environment variable OPENROUTER_API_KEY in.",
+          response: "❌ Geen OpenRouter API key beschikbaar.",
         }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        },
       );
     }
+
+    console.log(`[${requestId}] Using API key: ${API_KEY.substring(0, 10)}...`);
 
     const API_URL = "https://openrouter.ai/api/v1/chat/completions";
     const MODEL = "deepseek/deepseek-r1-0528-qwen3-8b"; // Check deze modelnaam in jouw OpenRouter dashboard
@@ -100,7 +107,9 @@ serve(async (req: Request) => {
       }),
     });
 
-    console.log(`[${requestId}] OpenRouter status: ${openRouterResponse.status}`);
+    console.log(
+      `[${requestId}] OpenRouter status: ${openRouterResponse.status}`,
+    );
 
     if (!openRouterResponse.ok) {
       const errorText = await openRouterResponse.text();
@@ -123,16 +132,22 @@ serve(async (req: Request) => {
     const aiMessage = openRouterData?.choices?.[0]?.message?.content?.trim();
 
     if (!aiMessage) {
-      console.error(`[${requestId}] Geen AI antwoord ontvangen`, openRouterData);
+      console.error(
+        `[${requestId}] Geen AI antwoord ontvangen`,
+        openRouterData,
+      );
       return new Response(
         JSON.stringify({
-          response: "❌ OpenRouter gaf geen antwoord terug. Probeer het opnieuw.",
+          response:
+            "❌ OpenRouter gaf geen antwoord terug. Probeer het opnieuw.",
         }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
 
-    console.log(`[${requestId}] ✅ Succes! AI response: ${aiMessage.substring(0, 100)}...`);
+    console.log(
+      `[${requestId}] ✅ Succes! AI response: ${aiMessage.substring(0, 100)}...`,
+    );
 
     return new Response(
       JSON.stringify({
