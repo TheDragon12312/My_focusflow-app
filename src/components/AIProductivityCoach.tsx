@@ -42,6 +42,7 @@ import { PersistentStats } from "@/lib/persistent-stats";
 import { notificationService } from "@/lib/notification-service";
 import { useTranslation } from "@/lib/i18n";
 import { testAndLog } from "@/lib/test-openrouter";
+import "@/lib/deploy-test";
 
 interface CoachState {
   isMinimized: boolean;
