@@ -453,7 +453,7 @@ const AIProductivityCoach = () => {
           {coachState.showChat ? (
             // Chat Interface
             <div className="space-y-3">
-              <ScrollArea className="h-60">
+              <ScrollArea className="h-60" data-chat-container>
                 <div className="space-y-2 pr-4">
                   {coachState.chatHistory.length === 0 ? (
                     <div className="text-center py-4">
@@ -466,48 +466,54 @@ const AIProductivityCoach = () => {
                       </p>
                     </div>
                   ) : (
-                    coachState.chatHistory.map((chat) => (
-                      <div
-                        key={chat.id}
-                        className={`flex ${chat.role === "user" ? "justify-end" : "justify-start"}`}
-                      >
+                    <>
+                      {coachState.chatHistory.map((chat) => (
                         <div
-                          className={`max-w-[85%] rounded-lg p-2 text-sm ${
-                            chat.role === "user"
-                              ? "bg-blue-600 text-white"
-                              : "bg-gray-100 text-gray-900"
-                          }`}
+                          key={chat.id}
+                          className={`flex ${chat.role === "user" ? "justify-end" : "justify-start"} animate-fade-in`}
                         >
-                          <p>{chat.message}</p>
-                          <p className="text-xs opacity-70 mt-1">
-                            {chat.timestamp.toLocaleTimeString("nl-NL", {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}
-                          </p>
-                        </div>
-                      </div>
-                    ))
-                  )}
-                  {coachState.isSendingMessage && (
-                    <div className="flex justify-start">
-                      <div className="bg-gray-100 rounded-lg p-2 max-w-[85%]">
-                        <div className="flex items-center gap-2">
-                          <Brain className="h-4 w-4 text-blue-500 animate-pulse" />
-                          <div className="flex space-x-1">
-                            <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                            <div
-                              className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
-                              style={{ animationDelay: "0.1s" }}
-                            ></div>
-                            <div
-                              className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
-                              style={{ animationDelay: "0.2s" }}
-                            ></div>
+                          <div
+                            className={`max-w-[85%] rounded-lg p-3 text-sm shadow-sm ${
+                              chat.role === "user"
+                                ? "bg-blue-600 text-white rounded-br-sm"
+                                : "bg-white text-gray-900 border border-gray-200 rounded-bl-sm"
+                            }`}
+                          >
+                            <p className="leading-relaxed">{chat.message}</p>
+                            <p className="text-xs opacity-70 mt-1">
+                              {chat.timestamp.toLocaleTimeString("nl-NL", {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
+                            </p>
                           </div>
                         </div>
-                      </div>
-                    </div>
+                      ))}
+
+                      {coachState.isSendingMessage && (
+                        <div className="flex justify-start animate-fade-in">
+                          <div className="bg-white border border-gray-200 rounded-lg rounded-bl-sm p-3 max-w-[85%] shadow-sm">
+                            <div className="flex items-center gap-2">
+                              <Brain className="h-4 w-4 text-blue-500 animate-pulse" />
+                              <span className="text-sm text-gray-600">
+                                AI Coach denkt na...
+                              </span>
+                              <div className="flex space-x-1">
+                                <div className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce"></div>
+                                <div
+                                  className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce"
+                                  style={{ animationDelay: "0.1s" }}
+                                ></div>
+                                <div
+                                  className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce"
+                                  style={{ animationDelay: "0.2s" }}
+                                ></div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
               </ScrollArea>
@@ -522,9 +528,15 @@ const AIProductivityCoach = () => {
                     }))
                   }
                   placeholder={t("aiCoach.inputPlaceholder")}
-                  onKeyPress={(e) => e.key === "Enter" && sendChatMessage()}
-                  className="flex-1 text-sm"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      sendChatMessage();
+                    }
+                  }}
+                  className="flex-1 text-sm border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                   disabled={coachState.isSendingMessage}
+                  autoComplete="off"
                 />
                 <Button
                   onClick={sendChatMessage}
@@ -533,20 +545,34 @@ const AIProductivityCoach = () => {
                     coachState.isSendingMessage
                   }
                   size="sm"
-                  className="px-2"
+                  className={`px-3 transition-all duration-200 ${
+                    coachState.chatMessage.trim() &&
+                    !coachState.isSendingMessage
+                      ? "bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg"
+                      : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  }`}
                 >
-                  <Send className="h-3 w-3" />
+                  {coachState.isSendingMessage ? (
+                    <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <Send className="h-3 w-3" />
+                  )}
                 </Button>
               </div>
 
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={toggleChat}
-                className="w-full text-xs"
-              >
-                Terug naar Insights
-              </Button>
+              <div className="flex justify-between items-center">
+                <p className="text-xs text-gray-500">
+                  💡 Tip: Vraag me alles over focus, planning of motivatie!
+                </p>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={toggleChat}
+                  className="text-xs px-2 py-1 h-auto"
+                >
+                  ← Terug naar Insights
+                </Button>
+              </div>
             </div>
           ) : (
             // Insights Interface (existing code)
