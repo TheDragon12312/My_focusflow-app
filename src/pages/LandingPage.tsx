@@ -156,13 +156,13 @@ const LandingPage = () => {
                 onClick={() => navigate("/auth")}
                 className="font-medium hover:text-blue-600 hover:bg-blue-50"
               >
-                Sign In
+                {t("landing.signIn")}
               </Button>
               <Button
                 onClick={() => navigate("/auth")}
                 className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-2 rounded-lg font-medium shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
               >
-                Get Started Free
+                {t("landing.getStartedFree")}
               </Button>
             </div>
           </div>
