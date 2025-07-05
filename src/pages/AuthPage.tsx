@@ -126,7 +126,7 @@ const AuthPage = () => {
           className="mb-6 text-gray-600 hover:text-blue-600"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Terug naar home
+          {t("auth.backToHome")}
         </Button>
 
         <Card className="border-0 shadow-xl bg-white/90 backdrop-blur-sm">
