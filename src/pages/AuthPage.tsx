@@ -247,7 +247,9 @@ const AuthPage = () => {
                 <Separator className="w-full" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-white px-2 text-gray-500">Of</span>
+                <span className="bg-white px-2 text-gray-500">
+                  {t("auth.or")}
+                </span>
               </div>
             </div>
 
@@ -267,7 +269,7 @@ const AuthPage = () => {
                 >
                   <path d="M11.4 24H0V12.6h11.4V24zM24 24H12.6V12.6H24V24zM11.4 11.4H0V0h11.4v11.4zM24 11.4H12.6V0H24v11.4z" />
                 </svg>
-                Inloggen met Microsoft
+                {t("auth.loginWithMicrosoft")}
               </Button>
 
               <Button
@@ -288,7 +290,7 @@ const AuthPage = () => {
                     clipRule="evenodd"
                   />
                 </svg>
-                Inloggen met GitHub
+                {t("auth.loginWithGitHub")}
               </Button>
             </div>
 
@@ -298,9 +300,7 @@ const AuthPage = () => {
                 onClick={() => setIsLogin(!isLogin)}
                 className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
               >
-                {isLogin
-                  ? "Nog geen account? Registreren"
-                  : "Al een account? Inloggen"}
+                {isLogin ? t("auth.noAccount") : t("auth.hasAccount")}
               </Button>
             </div>
           </CardContent>
