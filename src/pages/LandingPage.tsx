@@ -220,7 +220,8 @@ const LandingPage = () => {
                   ))}
                 </div>
                 <span className="font-medium">
-                  Join {activeUsers.toLocaleString()}+ users
+                  {t("landing.joinUsers")} {activeUsers.toLocaleString()}
+                  {t("landing.joinUsersEnd")}
                 </span>
               </div>
 
@@ -233,7 +234,7 @@ const LandingPage = () => {
                     />
                   ))}
                 </div>
-                <span className="font-medium">4.9/5 from 2,847+ reviews</span>
+                <span className="font-medium">{t("landing.rating")}</span>
               </div>
             </div>
           </div>
