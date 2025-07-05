@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { i18n, Language } from "@/lib/i18n";
+import { useTranslation } from "@/lib/i18n";
 import {
   Target,
   Brain,
