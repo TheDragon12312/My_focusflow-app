@@ -32,7 +32,11 @@ import {
   Send,
   Plane as Planning,
 } from "lucide-react";
-import { enhancedAIService, EnhancedAIInsight, AIChat } from "@/lib/enhanced-ai-service";
+import {
+  enhancedAIService,
+  EnhancedAIInsight,
+  AIChat,
+} from "@/lib/enhanced-ai-service";
 import { SettingsManager } from "@/lib/settings-manager";
 import { PersistentStats } from "@/lib/persistent-stats";
 import { notificationService } from "@/lib/notification-service";
@@ -74,30 +78,34 @@ const AIProductivityCoach = () => {
     // Load existing insights and chat history
     loadStoredInsights();
     enhancedAIService.loadChatHistory();
-    setCoachState(prev => ({
+    setCoachState((prev) => ({
       ...prev,
-      chatHistory: enhancedAIService.getChatHistory()
+      chatHistory: enhancedAIService.getChatHistory(),
     }));
 
     // Generate new insights if needed
-    const shouldGenerate = coachState.insights.length === 0 || shouldRefreshInsights();
+    const shouldGenerate =
+      coachState.insights.length === 0 || shouldRefreshInsights();
     if (shouldGenerate) {
       generateInsights();
     }
 
     // Auto-refresh insights every 15 minutes
-    const interval = setInterval(() => {
-      if (shouldRefreshInsights()) {
-        generateInsights();
-      }
-    }, 15 * 60 * 1000);
+    const interval = setInterval(
+      () => {
+        if (shouldRefreshInsights()) {
+          generateInsights();
+        }
+      },
+      15 * 60 * 1000,
+    );
 
     return () => clearInterval(interval);
   }, [user]);
 
   const loadStoredInsights = () => {
     const storedInsights = enhancedAIService.getStoredInsights();
-    
+
     setCoachState((prev) => ({
       ...prev,
       insights: storedInsights,
@@ -109,7 +117,9 @@ const AIProductivityCoach = () => {
   const shouldRefreshInsights = (): boolean => {
     if (coachState.insights.length === 0) return true;
     const latestInsight = coachState.insights[0];
-    const hoursSinceUpdate = (Date.now() - new Date(latestInsight.timestamp).getTime()) / (1000 * 60 * 60);
+    const hoursSinceUpdate =
+      (Date.now() - new Date(latestInsight.timestamp).getTime()) /
+      (1000 * 60 * 60);
     return hoursSinceUpdate > 1; // Refresh every hour
   };
 
@@ -119,11 +129,11 @@ const AIProductivityCoach = () => {
     const aiCoachingEnabled = SettingsManager.getSetting("aiCoaching");
     if (!aiCoachingEnabled) return;
 
-    setCoachState(prev => ({ ...prev, isGenerating: true }));
+    setCoachState((prev) => ({ ...prev, isGenerating: true }));
 
     try {
       console.log("🤖 Generating personalized AI insights...");
-      
+
       // Get user stats for AI analysis
       const todayStats = PersistentStats.getTodaysStats();
       const userStats = {
@@ -133,8 +143,11 @@ const AIProductivityCoach = () => {
         productivity: todayStats.productivity,
       };
 
-      const newInsights = await enhancedAIService.generateRealInsights(userStats, user.id);
-      
+      const newInsights = await enhancedAIService.generateRealInsights(
+        userStats,
+        user.id,
+      );
+
       // Combine with existing insights
       const allInsights = [...newInsights, ...coachState.insights].slice(0, 10);
 
@@ -150,34 +163,42 @@ const AIProductivityCoach = () => {
       console.log("✅ Personalized AI insights generated successfully");
     } catch (error) {
       console.error("Failed to generate insights:", error);
-      setCoachState(prev => ({ ...prev, isGenerating: false }));
+      setCoachState((prev) => ({ ...prev, isGenerating: false }));
     }
   };
 
   const sendChatMessage = async () => {
-    if (!coachState.chatMessage.trim() || coachState.isSendingMessage || !user?.id) return;
+    if (
+      !coachState.chatMessage.trim() ||
+      coachState.isSendingMessage ||
+      !user?.id
+    )
+      return;
 
-    setCoachState(prev => ({ ...prev, isSendingMessage: true }));
+    setCoachState((prev) => ({ ...prev, isSendingMessage: true }));
 
     try {
-      const response = await enhancedAIService.sendChatMessage(coachState.chatMessage, user.id);
-      
-      setCoachState(prev => ({
+      const response = await enhancedAIService.sendChatMessage(
+        coachState.chatMessage,
+        user.id,
+      );
+
+      setCoachState((prev) => ({
         ...prev,
         chatMessage: "",
         chatHistory: enhancedAIService.getChatHistory(),
-        isSendingMessage: false
+        isSendingMessage: false,
       }));
     } catch (error) {
       console.error("Failed to send chat message:", error);
-      setCoachState(prev => ({ ...prev, isSendingMessage: false }));
+      setCoachState((prev) => ({ ...prev, isSendingMessage: false }));
     }
   };
 
   const toggleChat = () => {
-    setCoachState(prev => ({
+    setCoachState((prev) => ({
       ...prev,
-      showChat: !prev.showChat
+      showChat: !prev.showChat,
     }));
   };
 
@@ -230,7 +251,11 @@ const AIProductivityCoach = () => {
     console.log("🤖 AI Action triggered:", action);
 
     try {
-      if (action.includes("ga verder") || action.includes("start sessie") || action.includes("start")) {
+      if (
+        action.includes("ga verder") ||
+        action.includes("start sessie") ||
+        action.includes("start")
+      ) {
         navigate("/focus");
       } else if (action.includes("pauze")) {
         navigate("/pause");
@@ -249,7 +274,7 @@ const AIProductivityCoach = () => {
       dismissInsight();
     } catch (error) {
       console.error("❌ Error executing AI action:", error);
-      
+
       notificationService.showNotification({
         title: "⚠️ Actie Mislukt",
         message: "Er ging iets mis bij het uitvoeren van de AI actie.",
@@ -316,7 +341,11 @@ const AIProductivityCoach = () => {
   return (
     <Card
       className={`fixed bottom-4 right-4 z-50 transition-all duration-300 ${
-        coachState.isMinimized ? "w-16 h-16" : coachState.showChat ? "w-96 max-h-[600px]" : "w-80 max-h-96"
+        coachState.isMinimized
+          ? "w-16 h-16"
+          : coachState.showChat
+            ? "w-96 max-h-[600px]"
+            : "w-80 max-h-96"
       } shadow-xl border-l-4 border-l-blue-500 bg-white`}
     >
       <CardHeader className="pb-2">
@@ -330,12 +359,13 @@ const AIProductivityCoach = () => {
             </Avatar>
             {!coachState.isMinimized && (
               <div>
-                <CardTitle className="text-sm font-medium">{t("aiCoach.title")}</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  {t("aiCoach.title")}
+                </CardTitle>
                 <p className="text-xs text-muted-foreground">
-                  {coachState.isGenerating 
-                    ? "Analyseert..." 
-                    : `${coachState.insights.length} insights beschikbaar`
-                  }
+                  {coachState.isGenerating
+                    ? "Analyseert..."
+                    : `${coachState.insights.length} insights beschikbaar`}
                 </p>
               </div>
             )}
@@ -394,10 +424,10 @@ const AIProductivityCoach = () => {
                     <div className="text-center py-4">
                       <Brain className="h-8 w-8 mx-auto text-blue-500 mb-2" />
                       <p className="text-sm text-gray-600 mb-2">
-                        Hallo! Ik ben je persoonlijke productiviteitscoach.
+                        {t("aiCoach.welcome")}
                       </p>
                       <p className="text-xs text-gray-500">
-                        Stel me een vraag over focus, motivatie of productiviteit!
+                        {t("aiCoach.inputPlaceholder")}
                       </p>
                     </div>
                   ) : (
@@ -431,8 +461,14 @@ const AIProductivityCoach = () => {
                           <Brain className="h-4 w-4 text-blue-500 animate-pulse" />
                           <div className="flex space-x-1">
                             <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                            <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "0.1s" }}></div>
-                            <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "0.2s" }}></div>
+                            <div
+                              className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                              style={{ animationDelay: "0.1s" }}
+                            ></div>
+                            <div
+                              className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                              style={{ animationDelay: "0.2s" }}
+                            ></div>
                           </div>
                         </div>
                       </div>
@@ -440,11 +476,16 @@ const AIProductivityCoach = () => {
                   )}
                 </div>
               </ScrollArea>
-              
+
               <div className="flex gap-2">
                 <Input
                   value={coachState.chatMessage}
-                  onChange={(e) => setCoachState(prev => ({ ...prev, chatMessage: e.target.value }))}
+                  onChange={(e) =>
+                    setCoachState((prev) => ({
+                      ...prev,
+                      chatMessage: e.target.value,
+                    }))
+                  }
                   placeholder="Vraag me iets over productiviteit..."
                   onKeyPress={(e) => e.key === "Enter" && sendChatMessage()}
                   className="flex-1 text-sm"
@@ -452,14 +493,17 @@ const AIProductivityCoach = () => {
                 />
                 <Button
                   onClick={sendChatMessage}
-                  disabled={!coachState.chatMessage.trim() || coachState.isSendingMessage}
+                  disabled={
+                    !coachState.chatMessage.trim() ||
+                    coachState.isSendingMessage
+                  }
                   size="sm"
                   className="px-2"
                 >
                   <Send className="h-3 w-3" />
                 </Button>
               </div>
-              
+
               <Button
                 variant="outline"
                 size="sm"
@@ -499,7 +543,10 @@ const AIProductivityCoach = () => {
                               {coachState.currentInsight.title}
                             </h4>
                             {coachState.insights.length > 1 && (
-                              <Badge variant="outline" className="text-xs px-1 h-5">
+                              <Badge
+                                variant="outline"
+                                className="text-xs px-1 h-5"
+                              >
                                 {coachState.currentInsightIndex + 1}/
                                 {coachState.insights.length}
                               </Badge>
