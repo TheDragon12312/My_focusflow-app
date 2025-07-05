@@ -521,7 +521,7 @@ const LandingPage = () => {
             <Button
               variant="outline"
               onClick={() => navigate("/contact")}
-              className="border-2 border-white text-black hover:bg-white hover:text-blue-600 px-8 py-4 text-lg font-semibold rounded-xl transition-all duration-300 hover:scale-105"
+              className="border-2 border-white text-white hover:bg-white hover:text-black px-8 py-4 text-lg font-semibold rounded-xl transition-all duration-300 hover:scale-105"
             >
               {t("landing.contactSales")}
             </Button>
