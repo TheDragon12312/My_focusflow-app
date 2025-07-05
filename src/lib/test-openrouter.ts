@@ -16,7 +16,7 @@ export async function testOpenRouterConnection(): Promise<{
     const testMessage =
       "Hoi! Dit is een test bericht. Antwoord kort met 'Test succesvol!'";
 
-    const { data, error } = await supabase.functions.invoke("openrouter-chat", {
+    const { data, error } = await supabase.functions.invoke("ai-coach-chat", {
       body: {
         message: testMessage,
         chatHistory: [],
