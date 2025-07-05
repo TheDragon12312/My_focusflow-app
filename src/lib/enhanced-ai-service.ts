@@ -255,14 +255,17 @@ class EnhancedAIService {
 
       console.log("🤖 OpenRouter response:", { data, error });
 
-      if (!error && data?.response) {
-        aiResponse = data.response;
+      if (!error && data?.response && data.response.trim().length > 0) {
+        aiResponse = data.response.trim();
         console.log(
           "✅ Got AI response from OpenRouter:",
           aiResponse.substring(0, 100) + "...",
         );
       } else {
-        console.log("⚠️ OpenRouter failed, using local fallback:", error);
+        console.log(
+          "⚠️ OpenRouter failed or empty response, using local fallback:",
+          error || "Empty response",
+        );
         // Fallback naar lokale intelligente antwoorden
         aiResponse = this.generateIntelligentResponse(message);
       }
