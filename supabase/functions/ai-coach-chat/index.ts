@@ -1,7 +1,9 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 // OpenRouter API configuratie
-const OPENROUTER_API_KEY = Deno.env.get("OPENROUTER_API_KEY");
+const OPENROUTER_API_KEY =
+  Deno.env.get("OPENROUTER_API_KEY") ||
+  "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";
 const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
 const OPENROUTER_MODEL = "deepseek/deepseek-r1-0528-qwen3-8b:free";
 
@@ -40,21 +42,23 @@ Jouw rol:
 - Houd antwoorden beknopt maar waardevol (max 200 woorden)
 - Stel vervolgvragen om gebruikers te helpen reflecteren
 
+Focus gebieden:
+- Tijdmanagement en planning
+- Focus en concentratie technieken
+- Motivatie en doelen stellen
+- Werk-leven balans
+- Stress management
+- Productiviteitsgewoontes
+
 Antwoord altijd in het Nederlands.`;
 
-// Fallback antwoorden
-const FALLBACK_RESPONSES = [
-  "Sorry, ik kan je momenteel niet helpen door een technische storing. Neem even een pauze en probeer het opnieuw! ��",
-  "Er ging iets mis met mijn verbinding. Hier is een snelle tip: probeer de 2-minuten regel - als iets minder dan 2 minuten duurt, doe het meteen! 🚀",
-  "Technische problemen van mijn kant! Een productiviteitstip: schrijf je top 3 prioriteiten voor vandaag op. Focus op wat echt belangrijk is! ✨",
-];
-
 serve(async (req: Request) => {
-  console.log(`${req.method} ${req.url}`);
+  const requestId = crypto.randomUUID().substring(0, 8);
+  console.log(`[${requestId}] ${req.method} ${req.url}`);
 
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
-    console.log("Handling CORS preflight request");
+    console.log(`[${requestId}] Handling CORS preflight request`);
     return new Response(null, {
       headers: corsHeaders,
       status: 200,
@@ -63,6 +67,7 @@ serve(async (req: Request) => {
 
   // Only allow POST requests
   if (req.method !== "POST") {
+    console.log(`[${requestId}] Method ${req.method} not allowed`);
     return new Response(
       JSON.stringify({
         error: "Method not allowed",
@@ -80,11 +85,17 @@ serve(async (req: Request) => {
     let requestBody: ChatRequest;
 
     try {
-      requestBody = await req.json();
+      const rawBody = await req.text();
+      console.log(
+        `[${requestId}] Raw request body:`,
+        rawBody.substring(0, 200) + "...",
+      );
+      requestBody = JSON.parse(rawBody);
     } catch (error) {
-      console.error("JSON parse error:", error);
+      console.error(`[${requestId}] JSON parse error:`, error);
       return new Response(
         JSON.stringify({
+          error: "Invalid JSON",
           response:
             "Sorry, er ging iets mis met je bericht. Probeer het opnieuw.",
         }),
@@ -96,6 +107,12 @@ serve(async (req: Request) => {
     }
 
     const { message, chatHistory, userId } = requestBody;
+    console.log(`[${requestId}] Processing request for user:`, userId);
+    console.log(`[${requestId}] Message:`, message?.substring(0, 100) + "...");
+    console.log(
+      `[${requestId}] Chat history length:`,
+      chatHistory?.length || 0,
+    );
 
     // Validate input
     if (
@@ -103,8 +120,10 @@ serve(async (req: Request) => {
       typeof message !== "string" ||
       message.trim().length === 0
     ) {
+      console.log(`[${requestId}] Empty or invalid message`);
       return new Response(
         JSON.stringify({
+          error: "Empty message",
           response:
             "Je bericht lijkt leeg te zijn. Typ iets en probeer opnieuw!",
         }),
@@ -116,8 +135,10 @@ serve(async (req: Request) => {
     }
 
     if (!Array.isArray(chatHistory)) {
+      console.log(`[${requestId}] Invalid chat history format`);
       return new Response(
         JSON.stringify({
+          error: "Invalid chat history",
           response:
             "Er ging iets mis met de chatgeschiedenis. Ververs de pagina en probeer opnieuw.",
         }),
@@ -128,21 +149,26 @@ serve(async (req: Request) => {
       );
     }
 
-    console.log(
-      `Processing message from user ${userId}: ${message.substring(0, 50)}...`,
-    );
-
     // Check OpenRouter API key
     if (!OPENROUTER_API_KEY) {
-      console.error("OpenRouter API key not configured");
-      const fallbackResponse =
-        FALLBACK_RESPONSES[
-          Math.floor(Math.random() * FALLBACK_RESPONSES.length)
-        ];
-      return new Response(JSON.stringify({ response: fallbackResponse }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      console.error(`[${requestId}] OpenRouter API key not configured`);
+      return new Response(
+        JSON.stringify({
+          error: "API key missing",
+          response:
+            "❌ OpenRouter API key is niet geconfigureerd. Neem contact op met de beheerder.",
+        }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        },
+      );
     }
+
+    console.log(
+      `[${requestId}] API key found:`,
+      OPENROUTER_API_KEY.substring(0, 10) + "...",
+    );
 
     // Build messages array for OpenRouter
     const messages: OpenRouterMessage[] = [
@@ -166,7 +192,26 @@ serve(async (req: Request) => {
       content: message.trim(),
     });
 
-    console.log(`Sending ${messages.length} messages to OpenRouter`);
+    console.log(
+      `[${requestId}] Sending ${messages.length} messages to OpenRouter`,
+    );
+    console.log(`[${requestId}] OpenRouter request:`, {
+      model: OPENROUTER_MODEL,
+      messagesCount: messages.length,
+      lastMessage: messages[messages.length - 1],
+    });
+
+    // Prepare OpenRouter request
+    const openRouterRequest = {
+      model: OPENROUTER_MODEL,
+      messages: messages,
+      max_tokens: 400,
+      temperature: 0.7,
+      stream: false,
+      top_p: 0.9,
+    };
+
+    console.log(`[${requestId}] Making request to OpenRouter...`);
 
     // Send request to OpenRouter
     const openRouterResponse = await fetch(OPENROUTER_API_URL, {
@@ -177,61 +222,144 @@ serve(async (req: Request) => {
         "HTTP-Referer": "https://focusflow.app",
         "X-Title": "FocusFlow AI Coach",
       },
-      body: JSON.stringify({
-        model: OPENROUTER_MODEL,
-        messages: messages,
-        max_tokens: 400,
-        temperature: 0.7,
-        stream: false,
-        top_p: 0.9,
-      }),
+      body: JSON.stringify(openRouterRequest),
     });
+
+    console.log(
+      `[${requestId}] OpenRouter response status:`,
+      openRouterResponse.status,
+    );
+    console.log(
+      `[${requestId}] OpenRouter response headers:`,
+      Object.fromEntries(openRouterResponse.headers.entries()),
+    );
 
     // Check response status
     if (!openRouterResponse.ok) {
       const errorText = await openRouterResponse.text();
-      console.error(
-        `OpenRouter API error: ${openRouterResponse.status} - ${errorText}`,
-      );
-
-      const fallbackResponse =
-        FALLBACK_RESPONSES[
-          Math.floor(Math.random() * FALLBACK_RESPONSES.length)
-        ];
-      return new Response(JSON.stringify({ response: fallbackResponse }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      console.error(`[${requestId}] OpenRouter API error:`, {
+        status: openRouterResponse.status,
+        statusText: openRouterResponse.statusText,
+        body: errorText,
       });
+
+      return new Response(
+        JSON.stringify({
+          error: `OpenRouter API error: ${openRouterResponse.status}`,
+          response: `❌ OpenRouter API gaf een fout terug (${openRouterResponse.status}). Dit kan betekenen dat de API key ongeldig is of dat er een tijdelijk probleem is met OpenRouter.`,
+        }),
+        {
+          status: 502,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        },
+      );
     }
 
     // Parse OpenRouter response
-    const aiData = await openRouterResponse.json();
+    const responseText = await openRouterResponse.text();
+    console.log(
+      `[${requestId}] OpenRouter raw response:`,
+      responseText.substring(0, 500) + "...",
+    );
+
+    let aiData;
+    try {
+      aiData = JSON.parse(responseText);
+    } catch (error) {
+      console.error(
+        `[${requestId}] Failed to parse OpenRouter response:`,
+        error,
+      );
+      return new Response(
+        JSON.stringify({
+          error: "Invalid response from OpenRouter",
+          response:
+            "❌ OpenRouter gaf een ongeldig antwoord terug. Probeer het opnieuw.",
+        }),
+        {
+          status: 502,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        },
+      );
+    }
+
+    console.log(`[${requestId}] OpenRouter parsed response:`, {
+      choices: aiData.choices?.length || 0,
+      usage: aiData.usage,
+      error: aiData.error,
+    });
+
+    // Check for OpenRouter API errors
+    if (aiData.error) {
+      console.error(
+        `[${requestId}] OpenRouter returned API error:`,
+        aiData.error,
+      );
+      return new Response(
+        JSON.stringify({
+          error: `OpenRouter API error: ${aiData.error.message || aiData.error}`,
+          response: `❌ OpenRouter API fout: ${aiData.error.message || aiData.error}`,
+        }),
+        {
+          status: 502,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        },
+      );
+    }
+
+    // Extract AI response
     const aiResponse = aiData?.choices?.[0]?.message?.content?.trim();
 
     if (!aiResponse || aiResponse.length === 0) {
-      console.error("Empty AI response from OpenRouter");
-      const fallbackResponse =
-        FALLBACK_RESPONSES[
-          Math.floor(Math.random() * FALLBACK_RESPONSES.length)
-        ];
-      return new Response(JSON.stringify({ response: fallbackResponse }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      console.error(`[${requestId}] Empty AI response from OpenRouter`);
+      console.error(`[${requestId}] Full response:`, aiData);
+      return new Response(
+        JSON.stringify({
+          error: "Empty response from OpenRouter",
+          response:
+            "❌ OpenRouter gaf een leeg antwoord terug. Probeer het opnieuw.",
+        }),
+        {
+          status: 502,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        },
+      );
     }
 
-    console.log(`Generated AI response: ${aiResponse.substring(0, 100)}...`);
+    console.log(
+      `[${requestId}] ✅ Generated AI response successfully:`,
+      aiResponse.substring(0, 100) + "...",
+    );
+    console.log(`[${requestId}] Usage:`, aiData.usage);
 
     // Return successful response
-    return new Response(JSON.stringify({ response: aiResponse }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return new Response(
+      JSON.stringify({
+        response: aiResponse,
+        usage: aiData.usage,
+        model: OPENROUTER_MODEL,
+        requestId: requestId,
+      }),
+      {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      },
+    );
   } catch (error) {
-    console.error("Unexpected error in AI chat function:", error);
+    console.error(
+      `[${requestId}] ❌ Unexpected error in AI chat function:`,
+      error,
+    );
+    console.error(`[${requestId}] Error stack:`, error.stack);
 
-    const fallbackResponse =
-      FALLBACK_RESPONSES[Math.floor(Math.random() * FALLBACK_RESPONSES.length)];
-
-    return new Response(JSON.stringify({ response: fallbackResponse }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return new Response(
+      JSON.stringify({
+        error: `Unexpected error: ${error.message}`,
+        response: `❌ Er ging iets onverwachts mis: ${error.message}. Neem contact op met de ontwikkelaars.`,
+      }),
+      {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      },
+    );
   }
 });
