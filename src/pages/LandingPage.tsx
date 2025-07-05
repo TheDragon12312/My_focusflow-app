@@ -448,7 +448,7 @@ const LandingPage = () => {
               >
                 {plan.popular && (
                   <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white px-4 py-1">
-                    Most Popular
+                    {t("landing.mostPopular")}
                   </Badge>
                 )}
                 <CardHeader className="text-center pb-4">
