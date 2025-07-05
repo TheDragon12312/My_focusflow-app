@@ -102,27 +102,27 @@ const LandingPage = () => {
                 href="#features"
                 className="text-gray-600 hover:text-blue-600 transition-all duration-200 font-medium hover:scale-105"
               >
-                Features
+                {t("landing.features")}
               </a>
               <a
                 href="#pricing"
                 className="text-gray-600 hover:text-blue-600 transition-all duration-200 font-medium hover:scale-105"
               >
-                Pricing
+                {t("landing.pricing")}
               </a>
               <Button
                 variant="ghost"
                 onClick={() => navigate("/about")}
                 className="font-medium hover:text-blue-600 hover:bg-blue-50"
               >
-                About
+                {t("landing.about")}
               </Button>
               <Button
                 variant="ghost"
                 onClick={() => navigate("/contact")}
                 className="font-medium hover:text-blue-600 hover:bg-blue-50"
               >
-                Contact
+                {t("landing.contact")}
               </Button>
 
               {/* Language Toggle Buttons */}
