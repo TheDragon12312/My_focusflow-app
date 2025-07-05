@@ -176,4 +176,5 @@ export async function checkDeployment() {
 if (typeof window !== "undefined") {
   (window as any).testDeployment = checkDeployment;
   (window as any).testFunctionDeployment = testFunctionDeployment;
+  (window as any).testAPIKey = testAPIKeyConfig;
 }
