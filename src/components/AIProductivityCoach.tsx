@@ -580,9 +580,22 @@ const AIProductivityCoach = () => {
               </div>
 
               <div className="flex justify-between items-center">
-                <p className="text-xs text-gray-500">
-                  💡 Tip: Vraag me alles over focus, planning of motivatie!
-                </p>
+                <div className="flex items-center gap-2">
+                  <p className="text-xs text-gray-500">
+                    💡 Tip: Vraag me alles over focus, planning of motivatie!
+                  </p>
+                  {process.env.NODE_ENV === "development" && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => testAndLog()}
+                      className="text-xs px-1 py-0.5 h-auto opacity-50 hover:opacity-100"
+                      title="Test OpenRouter API"
+                    >
+                      🧪
+                    </Button>
+                  )}
+                </div>
                 <Button
                   variant="ghost"
                   size="sm"
