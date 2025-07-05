@@ -15,10 +15,11 @@ import { useNavigate } from "react-router-dom";
 import { Target, Mail, Lock, User, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { createClient } from "@supabase/supabase-js";
+import { useTranslation } from "@/lib/i18n";
 
 const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_ANON_KEY
+  import.meta.env.VITE_SUPABASE_ANON_KEY,
 );
 
 const AuthPage = () => {
@@ -94,13 +95,13 @@ const AuthPage = () => {
   };
 
   const handleGitHubLogin = async () => {
- const { error } = await supabase.auth.signInWithOAuth({
-    provider: "github",
-  });
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "github",
+    });
 
-  if (error) {
-    throw error;
-  }
+    if (error) {
+      throw error;
+    }
   };
 
   if (isLoading) {
