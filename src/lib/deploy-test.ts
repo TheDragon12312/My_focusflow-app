@@ -93,11 +93,61 @@ export async function testFunctionDeployment() {
 }
 
 /**
+ * Test API key configuration
+ */
+export async function testAPIKeyConfig() {
+  console.log("🔑 Testing API key configuration...");
+
+  const { data, error } = await supabase.functions.invoke("ai-coach-chat", {
+    body: {
+      message: "API test",
+      chatHistory: [],
+      userId: "api-key-test",
+    },
+  });
+
+  console.log("🔑 API key test response:", { data, error });
+
+  if (error) {
+    console.error("❌ Function call failed:", error);
+    return false;
+  }
+
+  if (data?.response?.includes("Geen OpenRouter API key")) {
+    console.error("❌ API key not found in environment");
+    return false;
+  }
+
+  if (data?.response?.includes("OpenRouter API fout")) {
+    console.error("❌ OpenRouter API error - check key validity");
+    return false;
+  }
+
+  console.log("✅ API key configuration looks good");
+  return true;
+}
+
+/**
  * Comprehensive deployment check
  */
 export async function checkDeployment() {
   console.log("🔍 Running comprehensive deployment check...");
 
+  // First check API key
+  const apiKeyOK = await testAPIKeyConfig();
+
+  if (!apiKeyOK) {
+    console.error("❌ API Key configuration failed!");
+    console.log("\n🛠️ TROUBLESHOOTING:");
+    console.log("1. Deploy function: supabase functions deploy ai-coach-chat");
+    console.log("2. Check if API key is working in OpenRouter dashboard");
+    console.log(
+      "3. API key should be: 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",
+    );
+    return { success: false, error: "API key configuration failed" };
+  }
+
+  // Then test full functionality
   const result = await testFunctionDeployment();
 
   if (result.success) {
@@ -113,8 +163,10 @@ export async function checkDeployment() {
     console.log(
       "1. Deploy the function: supabase functions deploy ai-coach-chat",
     );
-    console.log("2. Check API key in Supabase dashboard");
-    console.log("3. Verify function logs in Supabase dashboard");
+    console.log("2. Check function logs in Supabase dashboard");
+    console.log(
+      "3. Verify model name: deepseek/deepseek-r1-0528-qwen3-8b:free",
+    );
   }
 
   return result;
