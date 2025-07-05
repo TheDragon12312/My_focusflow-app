@@ -253,18 +253,36 @@ class EnhancedAIService {
       console.log("🤖 OpenRouter response:", { data, error });
 
       if (!error && data?.response && data.response.trim().length > 0) {
-        aiResponse = data.response.trim();
-        console.log(
-          "✅ Got AI response from OpenRouter:",
-          aiResponse.substring(0, 100) + "...",
-        );
+        const response = data.response.trim();
+
+        // Check if this is a fallback response from the function
+        const isFallbackResponse =
+          response.includes("problemen met mijn verbinding") ||
+          response.includes("technische storing") ||
+          response.includes("API key") ||
+          response.includes("kan nu even geen antwoord");
+
+        if (isFallbackResponse) {
+          console.log(
+            "⚠️ Received fallback response from function, OpenRouter API call failed inside function",
+          );
+          console.log("📝 Fallback response:", response);
+          aiResponse =
+            "❌ OpenRouter API call faalde in de Supabase function. Controleer de deployment en API key configuratie.";
+        } else {
+          aiResponse = response;
+          console.log(
+            "✅ Got REAL AI response from OpenRouter:",
+            aiResponse.substring(0, 100) + "...",
+          );
+        }
       } else {
         console.log(
-          "⚠️ OpenRouter failed or empty response, using local fallback:",
+          "⚠️ OpenRouter function call failed:",
           error || "Empty response",
         );
-        // Fallback naar lokale intelligente antwoorden
-        aiResponse = this.generateIntelligentResponse(message);
+        aiResponse =
+          "❌ Supabase function call faalde. Controleer of de function correct is gedeployed.";
       }
     } catch (error) {
       console.error("❌ External AI chat failed:", error);
