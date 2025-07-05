@@ -103,6 +103,24 @@ const AIProductivityCoach = () => {
     return () => clearInterval(interval);
   }, [user]);
 
+  // Auto-scroll to bottom when chat history changes
+  useEffect(() => {
+    if (coachState.showChat && coachState.chatHistory.length > 0) {
+      setTimeout(() => {
+        const chatContainer = document.querySelector(
+          "[data-chat-container] [data-radix-scroll-area-viewport]",
+        );
+        if (chatContainer) {
+          chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+      }, 100);
+    }
+  }, [
+    coachState.chatHistory.length,
+    coachState.showChat,
+    coachState.isSendingMessage,
+  ]);
+
   const loadStoredInsights = () => {
     const storedInsights = enhancedAIService.getStoredInsights();
 
