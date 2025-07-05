@@ -175,23 +175,58 @@ const AIProductivityCoach = () => {
     )
       return;
 
-    setCoachState((prev) => ({ ...prev, isSendingMessage: true }));
+    const messageToSend = coachState.chatMessage.trim();
+
+    // Clear input immediately for better UX
+    setCoachState((prev) => ({
+      ...prev,
+      chatMessage: "",
+      isSendingMessage: true,
+    }));
 
     try {
+      console.log("💬 Sending chat message:", messageToSend);
+
       const response = await enhancedAIService.sendChatMessage(
-        coachState.chatMessage,
+        messageToSend,
         user.id,
       );
 
+      console.log(
+        "✅ Chat response received:",
+        response.substring(0, 100) + "...",
+      );
+
+      // Update chat history from service
       setCoachState((prev) => ({
         ...prev,
-        chatMessage: "",
         chatHistory: enhancedAIService.getChatHistory(),
         isSendingMessage: false,
       }));
+
+      // Auto-scroll to bottom of chat
+      setTimeout(() => {
+        const chatContainer = document.querySelector("[data-chat-container]");
+        if (chatContainer) {
+          chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+      }, 100);
     } catch (error) {
-      console.error("Failed to send chat message:", error);
-      setCoachState((prev) => ({ ...prev, isSendingMessage: false }));
+      console.error("❌ Failed to send chat message:", error);
+
+      // Show error message in chat
+      const errorMessage = {
+        id: `error_${Date.now()}`,
+        role: "assistant" as const,
+        message: "Sorry, er ging iets mis. Probeer het opnieuw! 🔄",
+        timestamp: new Date(),
+      };
+
+      setCoachState((prev) => ({
+        ...prev,
+        chatHistory: [...prev.chatHistory, errorMessage],
+        isSendingMessage: false,
+      }));
     }
   };
 
