@@ -257,42 +257,36 @@ const LandingPage = () => {
             {[
               {
                 icon: <Brain className="h-8 w-8 text-purple-600" />,
-                title: "AI Productivity Coach",
-                description:
-                  "Get personalized insights and recommendations to optimize your focus sessions",
-                badge: "Premium",
+                title: t("landing.aiCoach"),
+                description: t("landing.aiCoachDesc"),
+                badge: t("landing.premium"),
               },
               {
                 icon: <Shield className="h-8 w-8 text-green-600" />,
-                title: "Smart Distraction Blocking",
-                description:
-                  "Automatically detect and block distracting websites and notifications",
-                badge: "Popular",
+                title: t("landing.smartBlocking"),
+                description: t("landing.smartBlockingDesc"),
+                badge: t("landing.popular"),
               },
               {
                 icon: <Users className="h-8 w-8 text-blue-600" />,
-                title: "Team Collaboration",
-                description:
-                  "Sync focus sessions with your team and track collective productivity",
-                badge: "New",
+                title: t("landing.teamCollaboration"),
+                description: t("landing.teamCollaborationDesc"),
+                badge: t("landing.new"),
               },
               {
                 icon: <BarChart3 className="h-8 w-8 text-orange-600" />,
-                title: "Advanced Analytics",
-                description:
-                  "Detailed insights into your productivity patterns and improvement areas",
+                title: t("landing.advancedAnalytics"),
+                description: t("landing.advancedAnalyticsDesc"),
               },
               {
                 icon: <Timer className="h-8 w-8 text-red-600" />,
-                title: "Pomodoro Timer",
-                description:
-                  "Customizable focus sessions with automatic break reminders",
+                title: t("landing.pomodoroTimer"),
+                description: t("landing.pomodoroTimerDesc"),
               },
               {
                 icon: <Target className="h-8 w-8 text-indigo-600" />,
-                title: "Goal Tracking",
-                description:
-                  "Set and track daily, weekly, and monthly productivity goals",
+                title: t("landing.goalTracking"),
+                description: t("landing.goalTrackingDesc"),
               },
             ].map((feature, index) => (
               <Card
