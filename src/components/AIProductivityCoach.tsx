@@ -486,7 +486,7 @@ const AIProductivityCoach = () => {
                       chatMessage: e.target.value,
                     }))
                   }
-                  placeholder="Vraag me iets over productiviteit..."
+                  placeholder={t("aiCoach.inputPlaceholder")}
                   onKeyPress={(e) => e.key === "Enter" && sendChatMessage()}
                   className="flex-1 text-sm"
                   disabled={coachState.isSendingMessage}
