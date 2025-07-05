@@ -82,7 +82,7 @@ const AuthPage = () => {
     } catch (error) {
       // Error is already handled in AuthContext
       console.error("Auth error:", error);
-      toast.error(error.message || "Er is iets misgegaan");
+      toast.error(error.message || t("auth.somethingWentWrong"));
     } finally {
       setIsSubmitting(false);
     }
