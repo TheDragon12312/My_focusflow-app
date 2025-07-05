@@ -302,9 +302,9 @@ const LandingPage = () => {
                     {feature.badge && (
                       <Badge
                         className={`
-                        ${feature.badge === "Premium" ? "bg-purple-100 text-purple-700" : ""}
-                        ${feature.badge === "Popular" ? "bg-green-100 text-green-700" : ""}
-                        ${feature.badge === "New" ? "bg-blue-100 text-blue-700" : ""}
+                        ${feature.badge === t("landing.premium") ? "bg-purple-100 text-purple-700" : ""}
+                        ${feature.badge === t("landing.popular") ? "bg-green-100 text-green-700" : ""}
+                        ${feature.badge === t("landing.new") ? "bg-blue-100 text-blue-700" : ""}
                       `}
                       >
                         {feature.badge}
