@@ -62,12 +62,12 @@ const AuthPage = () => {
     e.preventDefault();
 
     if (!isLogin && formData.password !== formData.confirmPassword) {
-      toast.error("Wachtwoorden komen niet overeen");
+      toast.error(t("auth.passwordMismatch"));
       return;
     }
 
     if (!isLogin && formData.password.length < 6) {
-      toast.error("Wachtwoord moet minimaal 6 karakters lang zijn");
+      toast.error(t("auth.passwordTooShort"));
       return;
     }
 
