@@ -541,24 +541,24 @@ const LandingPage = () => {
                 <span className="text-xl font-bold">FocusFlow</span>
               </div>
               <p className="text-gray-400 mb-4 max-w-md">
-                Transform your productivity with AI-powered focus sessions,
-                smart distraction blocking, and seamless team collaboration.
+                {t("landing.footerDescription")}
               </p>
               <div className="text-sm text-gray-500">
-                100% Secure & Private • {completedSessions.toLocaleString()}+
-                Sessions Completed
+                {t("landing.securePrivate")}{" "}
+                {completedSessions.toLocaleString()}
+                {t("landing.sessionsCompleted")}
               </div>
             </div>
 
             <div>
-              <h3 className="font-semibold mb-4">Product</h3>
+              <h3 className="font-semibold mb-4">{t("landing.product")}</h3>
               <ul className="space-y-2 text-gray-400">
                 <li>
                   <a
                     href="#features"
                     className="hover:text-white transition-colors"
                   >
-                    Features
+                    {t("landing.features")}
                   </a>
                 </li>
                 <li>
@@ -566,7 +566,7 @@ const LandingPage = () => {
                     href="#pricing"
                     className="hover:text-white transition-colors"
                   >
-                    Pricing
+                    {t("landing.pricing")}
                   </a>
                 </li>
                 <li>
@@ -574,7 +574,7 @@ const LandingPage = () => {
                     onClick={() => navigate("/demo")}
                     className="hover:text-white transition-colors"
                   >
-                    Demo
+                    {t("landing.demo")}
                   </button>
                 </li>
                 <li>
@@ -582,21 +582,21 @@ const LandingPage = () => {
                     onClick={() => navigate("/roadmap")}
                     className="hover:text-white transition-colors"
                   >
-                    Roadmap
+                    {t("landing.roadmap")}
                   </button>
                 </li>
               </ul>
             </div>
 
             <div>
-              <h3 className="font-semibold mb-4">Company</h3>
+              <h3 className="font-semibold mb-4">{t("landing.company")}</h3>
               <ul className="space-y-2 text-gray-400">
                 <li>
                   <button
                     onClick={() => navigate("/about")}
                     className="hover:text-white transition-colors"
                   >
-                    About
+                    {t("landing.about")}
                   </button>
                 </li>
                 <li>
@@ -604,7 +604,7 @@ const LandingPage = () => {
                     onClick={() => navigate("/contact")}
                     className="hover:text-white transition-colors"
                   >
-                    Contact
+                    {t("landing.contact")}
                   </button>
                 </li>
                 <li>
@@ -612,7 +612,7 @@ const LandingPage = () => {
                     onClick={() => navigate("/help")}
                     className="hover:text-white transition-colors"
                   >
-                    Help
+                    {t("landing.help")}
                   </button>
                 </li>
                 <li>
@@ -620,7 +620,15 @@ const LandingPage = () => {
                     onClick={() => navigate("/community")}
                     className="hover:text-white transition-colors"
                   >
-                    Community
+                    {t("landing.community")}
+                  </button>
+                </li>
+                <li>
+                  <button
+                    onClick={() => navigate("/terms")}
+                    className="hover:text-white transition-colors"
+                  >
+                    {t("landing.termsOfConditions")}
                   </button>
                 </li>
               </ul>
@@ -628,7 +636,7 @@ const LandingPage = () => {
           </div>
 
           <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>&copy; 2024 FocusFlow. All rights reserved.</p>
+            <p>{t("landing.copyright")}</p>
           </div>
         </div>
       </footer>
