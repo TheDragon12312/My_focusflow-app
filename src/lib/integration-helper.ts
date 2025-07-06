@@ -53,7 +53,11 @@ export class IntegrationHelper {
       console.log("Integration stored successfully:", data);
       return data;
     } catch (error) {
-      console.error("Error storing test integration:", error);
+      console.error("Error storing test integration:", {
+        message: error instanceof Error ? error.message : error,
+        stack: error instanceof Error ? error.stack : undefined,
+        fullError: error,
+      });
       throw error;
     }
   }
