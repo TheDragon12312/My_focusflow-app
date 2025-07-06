@@ -33,7 +33,11 @@ class GoogleOAuthService {
       window.location.href = "/calendar";
       return null;
     } catch (error) {
-      console.error("Google OAuth error:", error);
+      console.error("Google OAuth error:", {
+        message: error instanceof Error ? error.message : error,
+        stack: error instanceof Error ? error.stack : undefined,
+        fullError: error,
+      });
       throw new Error("Authentication failed");
     }
   }
