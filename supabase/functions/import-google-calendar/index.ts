@@ -205,9 +205,25 @@ serve(async (req: Request) => {
         googleResponse.status,
         errorText,
       );
+
+      // More specific error messages
+      let errorMessage = `Google Calendar API error: ${googleResponse.status}`;
+      if (googleResponse.status === 401) {
+        errorMessage =
+          "Google Calendar authentication expired. Please reconnect your Google Calendar.";
+      } else if (googleResponse.status === 403) {
+        errorMessage =
+          "Google Calendar access denied. Please check your permissions.";
+      } else if (googleResponse.status === 404) {
+        errorMessage =
+          "Google Calendar not found. Please verify your calendar access.";
+      }
+
       return new Response(
         JSON.stringify({
-          error: `Google Calendar API error: ${googleResponse.status}. Please reconnect your Google Calendar.`,
+          error: errorMessage,
+          details: errorText,
+          status: googleResponse.status,
         }),
         {
           status: 502,
