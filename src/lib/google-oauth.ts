@@ -152,7 +152,11 @@ class GoogleOAuthService {
 
       return integrations.access_token;
     } catch (error) {
-      console.error("Error getting access token:", error);
+      console.error("Error getting access token:", {
+        message: error instanceof Error ? error.message : error,
+        stack: error instanceof Error ? error.stack : undefined,
+        fullError: error,
+      });
       return null;
     }
   }
