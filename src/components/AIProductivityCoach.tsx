@@ -603,7 +603,8 @@ const AIProductivityCoach = () => {
                   onClick={sendChatMessage}
                   disabled={
                     !coachState.chatMessage.trim() ||
-                    coachState.isSendingMessage
+                    coachState.isSendingMessage ||
+                    !coachState.isGoogleAIInitialized
                   }
                   size="sm"
                   className={`px-3 transition-all duration-200 ${
