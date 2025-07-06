@@ -588,6 +588,14 @@ const PlanningEditor = () => {
           >
             📅 Google Calendar importeren
           </Button>
+
+          <Button
+            onClick={() => integrationsDebugger.debugTableAccess()}
+            variant="outline"
+            className="w-full mt-2"
+          >
+            🐛 Debug Integrations Table
+          </Button>
           {loadingEvents && (
             <div className="text-center text-gray-500 mt-2">
               Afspraken ophalen...
