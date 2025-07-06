@@ -55,8 +55,10 @@ interface CoachState {
   isGenerating: boolean;
   showChat: boolean;
   chatMessage: string;
-  chatHistory: AIChat[];
+  chatHistory: GoogleChatMessage[];
   isSendingMessage: boolean;
+  isGoogleAIInitialized: boolean;
+  googleAIError: string | null;
 }
 
 const AIProductivityCoach = () => {
