@@ -222,7 +222,8 @@ const AIProductivityCoach = () => {
     if (
       !coachState.chatMessage.trim() ||
       coachState.isSendingMessage ||
-      !user?.id
+      !user?.id ||
+      !coachState.isGoogleAIInitialized
     )
       return;
 
@@ -236,23 +237,23 @@ const AIProductivityCoach = () => {
     }));
 
     try {
-      console.log("💬 Sending chat message:", messageToSend);
+      console.log("💬 Sending chat message to Google AI:", messageToSend);
 
-      const response = await enhancedAIService.sendChatMessage(
-        messageToSend,
-        user.id,
-      );
+      // Send message using Google AI service
+      const response = await googleAIService.sendMessage(messageToSend);
 
       console.log(
-        "✅ Chat response received:",
+        "✅ Google AI response received:",
         response.substring(0, 100) + "...",
       );
 
-      // Update chat history from service
+      // Update chat history from Google AI service
+      const updatedHistory = googleAIService.getChatHistory();
       setCoachState((prev) => ({
         ...prev,
-        chatHistory: enhancedAIService.getChatHistory(),
+        chatHistory: updatedHistory,
         isSendingMessage: false,
+        googleAIError: null,
       }));
 
       // Auto-scroll to bottom of chat
@@ -263,13 +264,13 @@ const AIProductivityCoach = () => {
         }
       }, 100);
     } catch (error) {
-      console.error("❌ Failed to send chat message:", error);
+      console.error("❌ Failed to send chat message to Google AI:", error);
 
       // Show error message in chat
-      const errorMessage = {
-        id: `error_${Date.now()}`,
-        role: "assistant" as const,
-        message: "Sorry, er ging iets mis. Probeer het opnieuw! 🔄",
+      const errorMessage: GoogleChatMessage = {
+        role: "model",
+        content:
+          "Sorry, er ging iets mis bij het versturen van je bericht. Probeer het opnieuw! 🔄",
         timestamp: new Date(),
       };
 
@@ -277,6 +278,8 @@ const AIProductivityCoach = () => {
         ...prev,
         chatHistory: [...prev.chatHistory, errorMessage],
         isSendingMessage: false,
+        googleAIError:
+          error instanceof Error ? error.message : "Onbekende fout",
       }));
     }
   };
