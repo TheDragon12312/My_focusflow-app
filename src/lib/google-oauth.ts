@@ -250,7 +250,11 @@ class GoogleOAuthService {
 
       return await response.json();
     } catch (error) {
-      console.error("Token refresh error:", error);
+      console.error("Token refresh error:", {
+        message: error instanceof Error ? error.message : error,
+        stack: error instanceof Error ? error.stack : undefined,
+        fullError: error,
+      });
       return null;
     }
   }
