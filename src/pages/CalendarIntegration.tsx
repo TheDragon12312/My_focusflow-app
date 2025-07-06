@@ -185,7 +185,11 @@ const CalendarIntegration = () => {
       // OAuth redirect will handle the rest
       toast.success("Redirecting naar Google...");
     } catch (error) {
-      console.error("Google Calendar connection error:", error);
+      console.error("Google Calendar connection error:", {
+        message: error instanceof Error ? error.message : error,
+        stack: error instanceof Error ? error.stack : undefined,
+        fullError: error,
+      });
       toast.error("Verbinding mislukt");
     } finally {
       setLoading(false);
