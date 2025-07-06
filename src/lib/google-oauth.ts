@@ -103,6 +103,19 @@ class GoogleOAuthService {
           status: error.status,
           fullError: error,
         });
+
+        // If no records found (PGRST116), but we have session provider token, that's OK
+        if (
+          error.code === "PGRST116" &&
+          session?.provider_token &&
+          session.provider === "google"
+        ) {
+          console.log(
+            "No database record but have session token - using session token",
+          );
+          return session.provider_token;
+        }
+
         // If the error is about RLS or permissions, try without .single() to debug
         if (
           error.message?.includes("406") ||
