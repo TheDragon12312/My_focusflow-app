@@ -182,7 +182,10 @@ const PlanningEditor = () => {
 
     try {
       for (const block of blocks) {
-        await realGoogleIntegration.createFocusSession(block.task, block.duration);
+        await realGoogleIntegration.createFocusSession(
+          block.task,
+          block.duration,
+        );
       }
       toast.success("Taken toegevoegd aan Google Calendar! 📅");
     } catch (error) {
@@ -193,19 +196,67 @@ const PlanningEditor = () => {
     }
   };
 
-  // Fetch Google Calendar events
+  // Import Google Calendar events to planning
   const handleImportCalendar = async () => {
+    if (!user?.id) {
+      toast.error("Je moet ingelogd zijn om te importeren");
+      return;
+    }
+
     setLoadingEvents(true);
     setErrorEvents("");
+
     try {
-      const res = await fetch(
-        "https://cwgnlsrqnyugloobrsxz.supabase.co/functions/v1/google-auth/calander"
+      const {
+        data: { session },
+        error: sessionError,
+      } = await supabase.auth.getSession();
+
+      if (sessionError || !session) {
+        toast.error("Geen geldige sessie gevonden. Log opnieuw in.");
+        return;
+      }
+
+      toast.info("Google Calendar importeren...");
+
+      const { data, error } = await supabase.functions.invoke(
+        "import-google-calendar",
+        {
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+          },
+        },
       );
-      if (!res.ok) throw new Error("Kon Google Calendar niet ophalen");
-      const data = await res.json();
-      setCalendarEvents(data?.items || []);
+
+      if (error) {
+        console.error("Import error:", error);
+        const errorMsg = error.message || "Onbekende fout bij importeren";
+        setErrorEvents(errorMsg);
+        toast.error("Import mislukt: " + errorMsg);
+        return;
+      }
+
+      if (data?.success) {
+        toast.success(
+          `🎉 ${data.imported} calendar evenementen geïmporteerd! ${data.duplicates > 0 ? `(${data.duplicates} duplicaten overgeslagen)` : ""}`,
+        );
+
+        // Show imported events
+        if (data.imported > 0) {
+          toast.success(
+            "Ga naar /calendar om je geïmporteerde evenementen te zien",
+          );
+        }
+      } else {
+        const errorMsg = data?.error || "Import mislukt zonder details";
+        setErrorEvents(errorMsg);
+        toast.error(errorMsg);
+      }
     } catch (err: any) {
-      setErrorEvents(err.message || "Onbekende fout bij ophalen afspraken");
+      console.error("Google Calendar import error:", err);
+      const errorMsg = err.message || "Er ging iets mis bij het importeren";
+      setErrorEvents(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setLoadingEvents(false);
     }
@@ -309,7 +360,9 @@ const PlanningEditor = () => {
                   <div key={block.id} className="py-4 flex items-center">
                     <div className="flex-1">
                       <h3 className="text-lg font-medium">{block.task}</h3>
-                      <p className="text-sm text-gray-500">{block.description}</p>
+                      <p className="text-sm text-gray-500">
+                        {block.description}
+                      </p>
                       <div className="flex items-center space-x-2 mt-1">
                         <Clock className="h-4 w-4 text-gray-400" />
                         <span>{block.duration} minuten</span>
@@ -437,7 +490,9 @@ const PlanningEditor = () => {
                     variant="outline"
                     onClick={() => {
                       setNewTask(task);
-                      toast.info(`Suggestie "${task}" toegevoegd aan nieuwe taak`);
+                      toast.info(
+                        `Suggestie "${task}" toegevoegd aan nieuwe taak`,
+                      );
                     }}
                     className="p-4 h-auto flex flex-col items-center space-y-2 hover:bg-blue-50"
                   >
@@ -492,20 +547,28 @@ const PlanningEditor = () => {
             📅 Google Calendar importeren
           </Button>
           {loadingEvents && (
-            <div className="text-center text-gray-500 mt-2">Afspraken ophalen...</div>
+            <div className="text-center text-gray-500 mt-2">
+              Afspraken ophalen...
+            </div>
           )}
           {errorEvents && (
             <div className="text-center text-red-500 mt-2">{errorEvents}</div>
           )}
           {calendarEvents.length > 0 && (
             <div className="mt-4 bg-white/80 rounded-lg shadow p-4">
-              <h3 className="text-lg font-bold mb-2">Geïmporteerde afspraken</h3>
+              <h3 className="text-lg font-bold mb-2">
+                Geïmporteerde afspraken
+              </h3>
               <ul className="divide-y divide-gray-200">
                 {calendarEvents.map((event, idx) => (
                   <li key={event.id || idx} className="py-2">
-                    <div className="font-semibold">{event.summary || "(geen titel)"}</div>
+                    <div className="font-semibold">
+                      {event.summary || "(geen titel)"}
+                    </div>
                     <div className="text-sm text-gray-600">
-                      {event.start?.dateTime || event.start?.date || "(geen datum)"}
+                      {event.start?.dateTime ||
+                        event.start?.date ||
+                        "(geen datum)"}
                     </div>
                   </li>
                 ))}
