@@ -34,7 +34,7 @@ export class GoogleCalendarImportService {
       const accessToken = await googleOAuth.getValidAccessToken();
       if (!accessToken) {
         throw new Error(
-          "No valid Google Calendar access token. Please reconnect your Google Calendar.",
+          "No Google Calendar connection found. Please go to the Calendar page (/calendar) and connect your Google Calendar first.",
         );
       }
 
