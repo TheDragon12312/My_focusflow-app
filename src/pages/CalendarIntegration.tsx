@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -43,7 +42,9 @@ const CalendarIntegration = () => {
   const { user } = useAuth();
 
   const [googleEvents, setGoogleEvents] = useState<GoogleCalendarEvent[]>([]);
-  const [microsoftEvents, setMicrosoftEvents] = useState<MicrosoftCalendarEvent[]>([]);
+  const [microsoftEvents, setMicrosoftEvents] = useState<
+    MicrosoftCalendarEvent[]
+  >([]);
   const [isGoogleConnected, setIsGoogleConnected] = useState(false);
   const [isMicrosoftConnected, setIsMicrosoftConnected] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -67,10 +68,10 @@ const CalendarIntegration = () => {
         .eq("is_active", true);
 
       const googleIntegration = integrations?.find(
-        (int) => int.integration_type === "google_calendar"
+        (int) => int.integration_type === "google_calendar",
       );
       const microsoftIntegration = integrations?.find(
-        (int) => int.integration_type === "microsoft_calendar"
+        (int) => int.integration_type === "microsoft_calendar",
       );
 
       setIsGoogleConnected(!!googleIntegration);
@@ -83,19 +84,27 @@ const CalendarIntegration = () => {
   const handleGoogleConnect = async () => {
     setLoading(true);
     try {
-      // Mock Google OAuth flow
-      const mockToken = "mock_google_token_" + Date.now();
-
-      await supabase.from("integrations").insert({
-        user_id: user?.id,
-        integration_type: "google_calendar",
-        access_token: mockToken,
-        is_active: true,
+      // Start Google OAuth flow via Supabase
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          scopes: "https://www.googleapis.com/auth/calendar.readonly",
+          queryParams: {
+            access_type: "offline",
+            prompt: "consent",
+          },
+          redirectTo: `${window.location.origin}/calendar?connected=true`,
+        },
       });
 
-      setIsGoogleConnected(true);
-      toast.success("Google Calendar verbonden!");
-      await loadGoogleEvents();
+      if (error) {
+        console.error("Google OAuth error:", error);
+        toast.error("OAuth verbinding mislukt: " + error.message);
+        return;
+      }
+
+      // OAuth redirect will handle the rest
+      toast.success("Redirecting naar Google...");
     } catch (error) {
       console.error("Google Calendar connection error:", error);
       toast.error("Verbinding mislukt");
@@ -167,14 +176,17 @@ const CalendarIntegration = () => {
     setMicrosoftEvents(mockEvents);
   };
 
-  const createFocusSessionFromEvent = async (event: GoogleCalendarEvent | MicrosoftCalendarEvent) => {
+  const createFocusSessionFromEvent = async (
+    event: GoogleCalendarEvent | MicrosoftCalendarEvent,
+  ) => {
     try {
-      const title = 'summary' in event ? event.summary : event.subject;
+      const title = "summary" in event ? event.summary : event.subject;
       const duration = Math.floor(
-        (new Date(event.end.dateTime).getTime() - new Date(event.start.dateTime).getTime()) / 
-        (1000 * 60)
+        (new Date(event.end.dateTime).getTime() -
+          new Date(event.start.dateTime).getTime()) /
+          (1000 * 60),
       );
-      
+
       // Create focus session in database
       await supabase.from("focus_blocks").insert({
         user_id: user?.id,
@@ -183,7 +195,7 @@ const CalendarIntegration = () => {
         notes: `Voorbereiding voor: ${title}`,
         status: "scheduled",
       });
-      
+
       toast.success("Focus sessie aangemaakt!");
     } catch (error) {
       console.error("Failed to create focus session:", error);
@@ -249,7 +261,7 @@ const CalendarIntegration = () => {
                         Nog niet verbonden met Microsoft Calendar
                       </p>
                     </div>
-                    <Button 
+                    <Button
                       onClick={handleMicrosoftConnect}
                       disabled={loading}
                       className="bg-gradient-to-r from-blue-600 to-purple-600"
@@ -303,12 +315,18 @@ const CalendarIntegration = () => {
                                 <div className="flex items-center gap-4 mt-2 text-sm text-gray-500 dark:text-gray-400">
                                   <span className="flex items-center gap-1">
                                     <Clock className="h-3 w-3" />
-                                    {new Date(event.start.dateTime).toLocaleTimeString('nl-NL', {
-                                      hour: '2-digit',
-                                      minute: '2-digit'
-                                    })} - {new Date(event.end.dateTime).toLocaleTimeString('nl-NL', {
-                                      hour: '2-digit',
-                                      minute: '2-digit'
+                                    {new Date(
+                                      event.start.dateTime,
+                                    ).toLocaleTimeString("nl-NL", {
+                                      hour: "2-digit",
+                                      minute: "2-digit",
+                                    })}{" "}
+                                    -{" "}
+                                    {new Date(
+                                      event.end.dateTime,
+                                    ).toLocaleTimeString("nl-NL", {
+                                      hour: "2-digit",
+                                      minute: "2-digit",
                                     })}
                                   </span>
                                 </div>
@@ -316,7 +334,9 @@ const CalendarIntegration = () => {
                               <Button
                                 size="sm"
                                 variant="outline"
-                                onClick={() => createFocusSessionFromEvent(event)}
+                                onClick={() =>
+                                  createFocusSessionFromEvent(event)
+                                }
                               >
                                 Focus Sessie
                               </Button>
