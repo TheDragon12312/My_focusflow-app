@@ -521,9 +521,9 @@ const AIProductivityCoach = () => {
                     </div>
                   ) : (
                     <>
-                      {coachState.chatHistory.map((chat) => (
+                      {coachState.chatHistory.map((chat, index) => (
                         <div
-                          key={chat.id}
+                          key={`${chat.role}-${index}-${chat.timestamp.getTime()}`}
                           className={`flex ${chat.role === "user" ? "justify-end" : "justify-start"} animate-fade-in`}
                         >
                           <div
@@ -533,7 +533,7 @@ const AIProductivityCoach = () => {
                                 : "bg-white text-gray-900 border border-gray-200 rounded-bl-sm"
                             }`}
                           >
-                            <p className="leading-relaxed">{chat.message}</p>
+                            <p className="leading-relaxed">{chat.content}</p>
                             <p className="text-xs opacity-70 mt-1">
                               {chat.timestamp.toLocaleTimeString("nl-NL", {
                                 hour: "2-digit",
