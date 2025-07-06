@@ -596,8 +596,35 @@ const PlanningEditor = () => {
           </p>
         </div>
 
+        {/* Google Calendar Connection Notice */}
+        <div className="mt-8 mb-4">
+          <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+            <div className="flex items-center space-x-3">
+              <div className="flex-shrink-0">
+                <ExternalLink className="h-6 w-6 text-amber-600" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-amber-800 font-medium text-sm">
+                  🔗 Google Calendar nog niet verbonden
+                </h3>
+                <p className="text-amber-700 text-xs mt-1">
+                  Ga naar de Calendar pagina om je Google Calendar te verbinden
+                  voordat je kunt importeren.
+                </p>
+              </div>
+              <Button
+                onClick={() => (window.location.href = "/calendar")}
+                size="sm"
+                className="bg-amber-600 hover:bg-amber-700 text-white"
+              >
+                Verbinden
+              </Button>
+            </div>
+          </div>
+        </div>
+
         {/* Google Calendar Import Section */}
-        <div className="mt-8">
+        <div>
           <Button
             onClick={handleImportCalendar}
             className="w-full bg-blue-600 text-white hover:bg-blue-700"
