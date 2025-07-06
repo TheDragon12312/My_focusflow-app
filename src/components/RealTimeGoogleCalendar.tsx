@@ -61,7 +61,11 @@ const RealTimeGoogleCalendar = () => {
       // Redirect to calendar integration page for OAuth flow
       await realGoogleIntegration.connect();
     } catch (error) {
-      console.error("Google Calendar connection error:", error);
+      console.error("Google Calendar connection error:", {
+        message: error instanceof Error ? error.message : error,
+        stack: error instanceof Error ? error.stack : undefined,
+        fullError: error,
+      });
       toast.error("Er ging iets mis bij het verbinden");
       setLoading(false);
     }
