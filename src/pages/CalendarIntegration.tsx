@@ -241,9 +241,20 @@ const CalendarIntegration = () => {
 
       if (response.error) {
         console.error("Import error:", response.error);
-        toast.error(
-          "Import mislukt: " + (response.error.message || "Onbekende fout"),
-        );
+
+        // Check if it's a CORS or function not found error
+        if (
+          response.error.message?.includes("CORS") ||
+          response.error.message?.includes("Failed to send a request")
+        ) {
+          toast.error(
+            "Google Calendar import functie is niet beschikbaar. Probeer later opnieuw.",
+          );
+        } else {
+          toast.error(
+            "Import mislukt: " + (response.error.message || "Onbekende fout"),
+          );
+        }
         return;
       }
 
