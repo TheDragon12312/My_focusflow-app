@@ -170,7 +170,14 @@ const CalendarIntegration = () => {
       });
 
       if (error) {
-        console.error("Google OAuth error:", error);
+        console.error("Google OAuth error:", {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code,
+          status: error.status,
+          fullError: error,
+        });
         toast.error("OAuth verbinding mislukt: " + error.message);
         return;
       }
