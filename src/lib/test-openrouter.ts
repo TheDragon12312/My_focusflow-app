@@ -214,7 +214,10 @@ export async function testAndLog() {
 
   // Summary
   console.log("\n📊 TEST SAMENVATTING:");
-  console.log("Direct API:", directResult.success ? "✅ WERKT" : "❌ FAALT");
+  console.log(
+    "Direct Google AI API:",
+    directResult.success ? "✅ WERKT" : "❌ FAALT",
+  );
   console.log(
     "Supabase Function:",
     functionResult.success ? "✅ WERKT" : "❌ FAALT",
@@ -222,14 +225,14 @@ export async function testAndLog() {
 
   if (directResult.success && !functionResult.success) {
     console.log(
-      "🔍 DIAGNOSE: OpenRouter API werkt, maar Supabase function heeft een probleem",
+      "🔍 DIAGNOSE: Google AI API werkt, maar Supabase function heeft een probleem",
     );
     console.log(
       "💡 OPLOSSING: Deploy de function opnieuw met: supabase functions deploy ai-coach-chat",
     );
   } else if (!directResult.success) {
-    console.log("🔍 DIAGNOSE: OpenRouter API zelf is niet bereikbaar");
-    console.log("💡 OPLOSSING: Controleer API key en netwerk verbinding");
+    console.log("🔍 DIAGNOSE: Google AI API zelf is niet bereikbaar");
+    console.log("💡 OPLOSSING: Controleer Google AI API key en quotum");
   }
 
   return { directResult, functionResult };
