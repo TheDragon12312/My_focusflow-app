@@ -41,8 +41,10 @@ import { SettingsManager } from "@/lib/settings-manager";
 import { PersistentStats } from "@/lib/persistent-stats";
 import { notificationService } from "@/lib/notification-service";
 import { useTranslation } from "@/lib/i18n";
-import { testAndLog } from "@/lib/test-openrouter"; // Now Google AI tests
-import "@/lib/deploy-test";
+import {
+  googleAIService,
+  ChatMessage as GoogleChatMessage,
+} from "@/lib/google-ai-service";
 
 interface CoachState {
   isMinimized: boolean;
