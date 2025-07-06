@@ -54,8 +54,70 @@ const CalendarIntegration = () => {
       navigate("/auth");
     } else {
       checkIntegrationStatus();
+
+      // Check if we're returning from OAuth
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get("connected") === "true") {
+        handleOAuthCallback();
+      }
     }
   }, [user, navigate]);
+
+  const handleOAuthCallback = async () => {
+    if (!user) return;
+
+    try {
+      // Get the current session which should now include Google tokens
+      const {
+        data: { session },
+        error,
+      } = await supabase.auth.getSession();
+
+      if (error || !session) {
+        toast.error("Geen geldige sessie gevonden");
+        return;
+      }
+
+      // Extract Google tokens from session
+      const providerToken = session.provider_token;
+      const providerRefreshToken = session.provider_refresh_token;
+
+      if (!providerToken) {
+        toast.error("Geen Google access token ontvangen");
+        return;
+      }
+
+      // Store the integration in our database
+      const { error: insertError } = await supabase
+        .from("integrations")
+        .upsert({
+          user_id: user.id,
+          integration_type: "google_calendar",
+          access_token: providerToken,
+          refresh_token: providerRefreshToken,
+          is_active: true,
+          connected_at: new Date().toISOString(),
+        });
+
+      if (insertError) {
+        console.error("Failed to store integration:", insertError);
+        toast.error("Kon integratie niet opslaan");
+        return;
+      }
+
+      setIsGoogleConnected(true);
+      toast.success("Google Calendar succesvol verbonden! 🎉");
+
+      // Clean up URL
+      window.history.replaceState({}, document.title, "/calendar");
+
+      // Load events
+      await loadGoogleEvents();
+    } catch (error) {
+      console.error("OAuth callback error:", error);
+      toast.error("Er ging iets mis bij het verwerken van de verbinding");
+    }
+  };
 
   const checkIntegrationStatus = async () => {
     if (!user) return;
