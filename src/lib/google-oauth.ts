@@ -276,7 +276,11 @@ class GoogleOAuthService {
         family_name: user.user_metadata?.family_name,
       };
     } catch (error) {
-      console.error("Error getting user profile:", error);
+      console.error("Error getting user profile:", {
+        message: error instanceof Error ? error.message : error,
+        stack: error instanceof Error ? error.stack : undefined,
+        fullError: error,
+      });
       return null;
     }
   }
