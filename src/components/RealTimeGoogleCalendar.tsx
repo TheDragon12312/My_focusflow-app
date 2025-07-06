@@ -19,6 +19,7 @@ import {
   realGoogleIntegration,
   GoogleCalendarEvent,
 } from "@/lib/real-google-integration";
+import { googleCalendarImport } from "@/lib/google-calendar-import";
 import { supabase } from "@/integrations/supabase/client";
 
 const RealTimeGoogleCalendar = () => {
