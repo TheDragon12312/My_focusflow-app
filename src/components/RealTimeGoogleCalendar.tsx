@@ -202,7 +202,11 @@ const RealTimeGoogleCalendar = () => {
 
       toast.success("Focus sessie aangemaakt!");
     } catch (error) {
-      console.error("Failed to create focus session:", error);
+      console.error("Failed to create focus session:", {
+        message: error instanceof Error ? error.message : error,
+        stack: error instanceof Error ? error.stack : undefined,
+        fullError: error,
+      });
       toast.error("Kon focus sessie niet aanmaken");
     }
   };
