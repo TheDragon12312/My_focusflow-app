@@ -116,7 +116,11 @@ const CalendarIntegration = () => {
       // Load events
       await loadGoogleEvents();
     } catch (error) {
-      console.error("OAuth callback error:", error);
+      console.error("OAuth callback error:", {
+        message: error instanceof Error ? error.message : error,
+        stack: error instanceof Error ? error.stack : undefined,
+        fullError: error,
+      });
       toast.error("Er ging iets mis bij het verwerken van de verbinding");
     }
   };
