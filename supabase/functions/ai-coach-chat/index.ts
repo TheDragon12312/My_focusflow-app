@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
-console.log("🚀 AI Coach Chat function starting...");
+console.log("🚀 AI Coach Chat function starting with Google AI...");
 
 // CORS headers
 const corsHeaders = {
@@ -14,6 +14,7 @@ serve(async (req: Request) => {
   const requestId = Math.random().toString(36).substring(2, 8);
   console.log(`[${requestId}] ${req.method} ${req.url}`);
 
+  // Handle CORS preflight
   if (req.method === "OPTIONS") {
     console.log(`[${requestId}] CORS preflight`);
     return new Response(null, { headers: corsHeaders, status: 200 });
@@ -31,6 +32,7 @@ serve(async (req: Request) => {
   }
 
   try {
+    // Parse request
     const body = await req.json();
     console.log(`[${requestId}] Request body:`, {
       message: body.message?.substring(0, 50) + "...",
@@ -47,15 +49,18 @@ serve(async (req: Request) => {
       });
     }
 
-    const API_KEY =
-      Deno.env.get("OPENROUTER_API_KEY") ||
-      "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";
+    // Google AI configuration
+    const GOOGLE_API_KEY =
+      Deno.env.get("GOOGLE_AI_API_KEY") ||
+      "AIzaSyAW65ss1aUDSFkM9apP9zxRycAvZ3WUV7U";
+    const GOOGLE_AI_URL =
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
 
-    if (!API_KEY) {
-      console.error(`[${requestId}] Geen API key beschikbaar`);
+    if (!GOOGLE_API_KEY) {
+      console.error(`[${requestId}] Geen Google AI API key beschikbaar`);
       return new Response(
         JSON.stringify({
-          response: "❌ Geen OpenRouter API key beschikbaar.",
+          response: "❌ Geen Google AI API key beschikbaar.",
         }),
         {
           status: 500,
@@ -64,98 +69,130 @@ serve(async (req: Request) => {
       );
     }
 
-    console.log(`[${requestId}] Using API key: ${API_KEY.substring(0, 10)}...`);
-
-    const API_URL = "https://openrouter.ai/api/v1/chat/completions";
-    const MODEL = "deepseek/deepseek-r1-0528-qwen3-8b:free";
-
-    // Messages opbouwen
-    const messages = [
-      {
-        role: "system",
-        content:
-          "Je bent een vriendelijke AI-productiviteitscoach voor FocusFlow. Help gebruikers met focus, motivatie en planning. Antwoord in het Nederlands, gebruik emoji's en wees praktisch.",
-      },
-      ...chatHistory
-        .slice(-5)
-        .filter((item: any) => item.role && item.message)
-        .map((item: any) => ({
-          role: item.role,
-          content: item.message,
-        })),
-      {
-        role: "user",
-        content: message.trim(),
-      },
-    ];
-
     console.log(
-      `[${requestId}] Sending ${messages.length} messages to OpenRouter`,
+      `[${requestId}] Using Google AI API key: ${GOOGLE_API_KEY.substring(0, 10)}...`,
     );
 
-    const openRouterResponse = await fetch(API_URL, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${API_KEY}`,
-        "Content-Type": "application/json",
-        "HTTP-Referer": "https://focusflow.app",
-        "X-Title": "FocusFlow AI Coach",
-      },
-      body: JSON.stringify({
-        model: MODEL,
-        messages,
-        max_tokens: 300,
-        temperature: 0.7,
-      }),
+    // Build conversation for Google AI
+    const systemInstruction =
+      "Je bent een vriendelijke en praktische AI-productiviteitscoach voor FocusFlow. Help gebruikers met focus, motivatie, planning en productiviteit. Geef praktische, uitvoerbare tips. Wees empathisch en ondersteunend. Gebruik af en toe emoji's voor een persoonlijk gevoel. Houd antwoorden beknopt maar waardevol (max 200 woorden). Stel vervolgvragen om gebruikers te helpen reflecteren. Focus gebieden: tijdmanagement, concentratie technieken, motivatie, werk-leven balans, stress management, productiviteitsgewoontes. Antwoord altijd in het Nederlands.";
+
+    // Build conversation history for Google AI format
+    const contents = [];
+
+    // Add system instruction as first user message (Gemini doesn't have system role)
+    contents.push({
+      role: "user",
+      parts: [
+        {
+          text: `INSTRUCTIE: ${systemInstruction}\n\nGebruiker: ${message.trim()}`,
+        },
+      ],
     });
 
-    console.log(
-      `[${requestId}] OpenRouter status: ${openRouterResponse.status}`,
+    // Add chat history if available
+    if (chatHistory.length > 0) {
+      const recentHistory = chatHistory.slice(-5); // Last 5 messages
+
+      let conversationText = "Eerdere gesprek context:\n";
+      for (const item of recentHistory) {
+        if (item.role && item.message) {
+          const roleLabel = item.role === "user" ? "Gebruiker" : "AI Coach";
+          conversationText += `${roleLabel}: ${item.message}\n`;
+        }
+      }
+      conversationText += `\nHuidige vraag: ${message.trim()}`;
+
+      // Replace the content with full context
+      contents[0].parts[0].text = `INSTRUCTIE: ${systemInstruction}\n\n${conversationText}`;
+    }
+
+    console.log(`[${requestId}] Sending request to Google AI`);
+
+    // Call Google AI API
+    const googleResponse = await fetch(
+      `${GOOGLE_AI_URL}?key=${GOOGLE_API_KEY}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          contents: contents,
+          generationConfig: {
+            temperature: 0.7,
+            topP: 0.8,
+            topK: 40,
+            maxOutputTokens: 400,
+          },
+          safetySettings: [
+            {
+              category: "HARM_CATEGORY_HARASSMENT",
+              threshold: "BLOCK_MEDIUM_AND_ABOVE",
+            },
+            {
+              category: "HARM_CATEGORY_HATE_SPEECH",
+              threshold: "BLOCK_MEDIUM_AND_ABOVE",
+            },
+            {
+              category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+              threshold: "BLOCK_MEDIUM_AND_ABOVE",
+            },
+            {
+              category: "HARM_CATEGORY_DANGEROUS_CONTENT",
+              threshold: "BLOCK_MEDIUM_AND_ABOVE",
+            },
+          ],
+        }),
+      },
     );
 
-    if (!openRouterResponse.ok) {
-      const errorText = await openRouterResponse.text();
-      console.error(`[${requestId}] OpenRouter error:`, errorText);
+    console.log(
+      `[${requestId}] Google AI response status: ${googleResponse.status}`,
+    );
+
+    if (!googleResponse.ok) {
+      const errorText = await googleResponse.text();
+      console.error(`[${requestId}] Google AI error:`, errorText);
 
       return new Response(
         JSON.stringify({
-          response: `❌ OpenRouter API fout (${openRouterResponse.status}): Controleer API key en model beschikbaarheid.`,
+          response: `❌ Google AI API fout (${googleResponse.status}): Controleer API key en quotum.`,
         }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
 
-    const openRouterData = await openRouterResponse.json();
-    console.log(`[${requestId}] OpenRouter response:`, {
-      choices: openRouterData.choices?.length || 0,
-      usage: openRouterData.usage,
+    const googleData = await googleResponse.json();
+    console.log(`[${requestId}] Google AI response:`, {
+      candidates: googleData.candidates?.length || 0,
+      usage: googleData.usageMetadata,
     });
 
-    const aiMessage = openRouterData?.choices?.[0]?.message?.content?.trim();
+    // Extract AI response from Google AI format
+    const aiMessage =
+      googleData?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
 
     if (!aiMessage) {
-      console.error(
-        `[${requestId}] Geen AI antwoord ontvangen`,
-        openRouterData,
-      );
+      console.error(`[${requestId}] Geen AI antwoord ontvangen`, googleData);
       return new Response(
         JSON.stringify({
           response:
-            "❌ OpenRouter gaf geen antwoord terug. Probeer het opnieuw.",
+            "❌ Google AI gaf geen antwoord terug. Probeer het opnieuw.",
         }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
 
     console.log(
-      `[${requestId}] ✅ Succes! AI response: ${aiMessage.substring(0, 100)}...`,
+      `[${requestId}] ✅ Succes! Google AI response: ${aiMessage.substring(0, 100)}...`,
     );
 
     return new Response(
       JSON.stringify({
         response: aiMessage,
-        model: MODEL,
-        usage: openRouterData.usage,
+        model: "gemini-1.5-flash",
+        usage: googleData.usageMetadata,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
