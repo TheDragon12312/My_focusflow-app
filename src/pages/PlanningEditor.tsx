@@ -307,7 +307,15 @@ const PlanningEditor = () => {
       console.error("Google Calendar import error:", err);
       const errorMsg = err.message || "Er ging iets mis bij het importeren";
       setErrorEvents(errorMsg);
-      toast.error(errorMsg);
+
+      // Check if it's a connection issue and provide helpful guidance
+      if (errorMsg.includes("No Google Calendar connection found")) {
+        toast.error(
+          "Google Calendar niet verbonden - ga naar /calendar om te verbinden",
+        );
+      } else {
+        toast.error(errorMsg);
+      }
     } finally {
       setLoadingEvents(false);
     }
