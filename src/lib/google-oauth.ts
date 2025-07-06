@@ -178,7 +178,14 @@ class GoogleOAuthService {
         .single();
 
       if (error) {
-        console.error("Error checking integrations:", error);
+        console.error("Error checking integrations:", {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code,
+          status: error.status,
+          fullError: error,
+        });
         return false;
       }
 
