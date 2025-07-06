@@ -231,9 +231,23 @@ const PlanningEditor = () => {
 
       if (error) {
         console.error("Import error:", error);
-        const errorMsg = error.message || "Onbekende fout bij importeren";
-        setErrorEvents(errorMsg);
-        toast.error("Import mislukt: " + errorMsg);
+
+        // Check if it's a CORS or function not found error
+        if (
+          error.message?.includes("CORS") ||
+          error.message?.includes("Failed to send a request")
+        ) {
+          toast.error(
+            "Google Calendar import functie is niet beschikbaar. Probeer later opnieuw.",
+          );
+          setErrorEvents(
+            "Edge Function niet beschikbaar - mogelijk niet gedeployed",
+          );
+        } else {
+          const errorMsg = error.message || "Onbekende fout bij importeren";
+          setErrorEvents(errorMsg);
+          toast.error("Import mislukt: " + errorMsg);
+        }
         return;
       }
 
