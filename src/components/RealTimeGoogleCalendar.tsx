@@ -89,6 +89,59 @@ const RealTimeGoogleCalendar = () => {
     }
   };
 
+  const importToPlanning = async () => {
+    if (!user || !isConnected) {
+      toast.error("Je moet eerst verbinding maken met Google Calendar");
+      return;
+    }
+
+    setImporting(true);
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session) {
+        toast.error("Geen geldige sessie gevonden");
+        return;
+      }
+
+      toast.info("Google Calendar importeren...");
+
+      const response = await supabase.functions.invoke(
+        "import-google-calendar",
+        {
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+          },
+        },
+      );
+
+      if (response.error) {
+        console.error("Import error:", response.error);
+        toast.error(
+          "Import mislukt: " + (response.error.message || "Onbekende fout"),
+        );
+        return;
+      }
+
+      const result = response.data;
+
+      if (result.success) {
+        toast.success(
+          `🎉 ${result.imported} evenementen geïmporteerd naar je planning! ${result.duplicates > 0 ? `(${result.duplicates} duplicaten overgeslagen)` : ""}`,
+        );
+      } else {
+        toast.error("Import mislukt");
+      }
+    } catch (error) {
+      console.error("Import Google Calendar error:", error);
+      toast.error("Er ging iets mis bij het importeren");
+    } finally {
+      setImporting(false);
+    }
+  };
+
   const createFocusSessionFromEvent = async (event: GoogleCalendarEvent) => {
     try {
       const duration = Math.floor(
