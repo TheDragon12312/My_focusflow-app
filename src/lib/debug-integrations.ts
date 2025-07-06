@@ -24,7 +24,18 @@ export class IntegrationsDebugger {
         .select("*")
         .limit(1);
 
-      console.log("Select result:", { data: selectData, error: selectError });
+      console.log("Select result:", {
+        data: selectData,
+        error: selectError
+          ? {
+              message: selectError.message,
+              details: selectError.details,
+              hint: selectError.hint,
+              code: selectError.code,
+              status: selectError.status,
+            }
+          : null,
+      });
 
       // 3. Try to select with user filter
       console.log("3. Testing SELECT with user filter...");
@@ -35,7 +46,15 @@ export class IntegrationsDebugger {
 
       console.log("User select result:", {
         data: userSelectData,
-        error: userSelectError,
+        error: userSelectError
+          ? {
+              message: userSelectError.message,
+              details: userSelectError.details,
+              hint: userSelectError.hint,
+              code: userSelectError.code,
+              status: userSelectError.status,
+            }
+          : null,
       });
 
       // 4. Try to insert a test record
