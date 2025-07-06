@@ -201,26 +201,62 @@ const CalendarIntegration = () => {
   };
 
   const loadGoogleEvents = async () => {
-    // Mock Google Calendar events
-    const mockEvents: GoogleCalendarEvent[] = [
-      {
-        id: "1",
-        summary: "Team Standup",
-        description: "Daily team standup meeting",
-        start: { dateTime: new Date(Date.now() + 3600000).toISOString() },
-        end: { dateTime: new Date(Date.now() + 5400000).toISOString() },
-        attendees: [{ email: "colleague@example.com" }],
-      },
-      {
-        id: "2",
-        summary: "Project Review",
-        description: "Monthly project review session",
-        start: { dateTime: new Date(Date.now() + 86400000).toISOString() },
-        end: { dateTime: new Date(Date.now() + 90000000).toISOString() },
-      },
-    ];
+    if (!isGoogleConnected) return;
 
-    setGoogleEvents(mockEvents);
+    try {
+      // This would load current events for display
+      // For now, we'll show a message that events are imported to planning
+      toast.success("Google Calendar events worden geladen...");
+    } catch (error) {
+      console.error("Failed to load Google events:", error);
+      toast.error("Kon Google Calendar events niet laden");
+    }
+  };
+
+  const importGoogleCalendar = async () => {
+    if (!user || !isGoogleConnected) {
+      toast.error("Je moet eerst verbinding maken met Google Calendar");
+      return;
+    }
+
+    setImporting(true);
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session) {
+        toast.error("Geen geldige sessie gevonden");
+        return;
+      }
+
+      const response = await supabase.functions.invoke(
+        "import-google-calendar",
+        {
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+          },
+        },
+      );
+
+      if (response.error) {
+        console.error("Import error:", response.error);
+        toast.error(
+          "Import mislukt: " + (response.error.message || "Onbekende fout"),
+        );
+        return;
+      }
+
+      const result = response.data;
+      toast.success(
+        `🎉 ${result.imported} evenementen geïmporteerd! ${result.duplicates > 0 ? `(${result.duplicates} duplicaten overgeslagen)` : ""}`,
+      );
+    } catch (error) {
+      console.error("Import Google Calendar error:", error);
+      toast.error("Er ging iets mis bij het importeren");
+    } finally {
+      setImporting(false);
+    }
   };
 
   const loadMicrosoftEvents = async () => {
