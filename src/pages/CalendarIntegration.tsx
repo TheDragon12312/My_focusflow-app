@@ -213,7 +213,11 @@ const CalendarIntegration = () => {
       toast.success("Microsoft Calendar verbonden!");
       await loadMicrosoftEvents();
     } catch (error) {
-      console.error("Microsoft Calendar connection error:", error);
+      console.error("Microsoft Calendar connection error:", {
+        message: error instanceof Error ? error.message : error,
+        stack: error instanceof Error ? error.stack : undefined,
+        fullError: error,
+      });
       toast.error("Verbinding mislukt");
     } finally {
       setLoading(false);
