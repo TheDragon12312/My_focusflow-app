@@ -593,7 +593,10 @@ const AIProductivityCoach = () => {
                     }
                   }}
                   className="flex-1 text-sm border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                  disabled={coachState.isSendingMessage}
+                  disabled={
+                    coachState.isSendingMessage ||
+                    !coachState.isGoogleAIInitialized
+                  }
                   autoComplete="off"
                 />
                 <Button
