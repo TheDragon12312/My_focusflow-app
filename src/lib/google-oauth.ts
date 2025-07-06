@@ -56,7 +56,11 @@ class GoogleOAuthService {
         .eq("user_id", user.id)
         .eq("integration_type", "google_calendar");
     } catch (error) {
-      console.error("Google sign out error:", error);
+      console.error("Google sign out error:", {
+        message: error instanceof Error ? error.message : error,
+        stack: error instanceof Error ? error.stack : undefined,
+        fullError: error,
+      });
     }
   }
 
