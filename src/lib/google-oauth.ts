@@ -147,9 +147,14 @@ class GoogleOAuthService {
       const {
         data: { user },
       } = await supabase.auth.getUser();
-      if (!user) return false;
+      if (!user) {
+        console.log("No user for isSignedIn check");
+        return false;
+      }
 
-      const { data: integrations } = await supabase
+      console.log("Checking if user is signed in:", user.id);
+
+      const { data: integrations, error } = await supabase
         .from("integrations")
         .select("id")
         .eq("user_id", user.id)
@@ -157,8 +162,16 @@ class GoogleOAuthService {
         .eq("is_active", true)
         .single();
 
-      return !!integrations;
-    } catch {
+      if (error) {
+        console.error("Error checking integrations:", error);
+        return false;
+      }
+
+      const isSignedIn = !!integrations;
+      console.log("Is signed in:", isSignedIn);
+      return isSignedIn;
+    } catch (error) {
+      console.error("Exception in isSignedIn:", error);
       return false;
     }
   }
