@@ -609,7 +609,8 @@ const AIProductivityCoach = () => {
                   size="sm"
                   className={`px-3 transition-all duration-200 ${
                     coachState.chatMessage.trim() &&
-                    !coachState.isSendingMessage
+                    !coachState.isSendingMessage &&
+                    coachState.isGoogleAIInitialized
                       ? "bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg"
                       : "bg-gray-300 text-gray-500 cursor-not-allowed"
                   }`}
