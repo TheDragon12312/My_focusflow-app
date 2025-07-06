@@ -148,6 +148,11 @@ class GoogleOAuthService {
 
       if (!integrations?.access_token) {
         console.log("No access token found in integrations");
+        // Fallback to session token if available
+        if (session?.provider_token && session.provider === "google") {
+          console.log("Using session provider token as fallback");
+          return session.provider_token;
+        }
         return null;
       }
 
