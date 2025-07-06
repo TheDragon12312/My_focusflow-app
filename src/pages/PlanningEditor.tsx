@@ -32,6 +32,7 @@ import {
   Play,
   Coffee,
   AlertCircle,
+  ExternalLink,
 } from "lucide-react";
 
 interface TaskBlock {
