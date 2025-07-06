@@ -45,6 +45,7 @@ import {
   googleAIService,
   ChatMessage as GoogleChatMessage,
 } from "@/lib/google-ai-service";
+import "@/lib/test-google-ai";
 
 interface CoachState {
   isMinimized: boolean;
