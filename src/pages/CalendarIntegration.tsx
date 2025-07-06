@@ -311,7 +311,11 @@ const CalendarIntegration = () => {
         `🎉 ${result.imported} evenementen geïmporteerd! ${result.duplicates > 0 ? `(${result.duplicates} duplicaten overgeslagen)` : ""}`,
       );
     } catch (error) {
-      console.error("Import Google Calendar error:", error);
+      console.error("Import Google Calendar error:", {
+        message: error instanceof Error ? error.message : error,
+        stack: error instanceof Error ? error.stack : undefined,
+        fullError: error,
+      });
       toast.error("Er ging iets mis bij het importeren");
     } finally {
       setImporting(false);
