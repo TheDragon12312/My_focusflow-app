@@ -623,12 +623,22 @@ const AIProductivityCoach = () => {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => testAndLog()}
+                      onClick={() =>
+                        googleAIService.testConnection().then(console.log)
+                      }
                       className="text-xs px-1 py-0.5 h-auto opacity-50 hover:opacity-100"
                       title="Test Google AI API"
                     >
                       🧪
                     </Button>
+                  )}
+                  {coachState.googleAIError && (
+                    <span
+                      className="text-xs text-red-500"
+                      title={coachState.googleAIError}
+                    >
+                      ⚠️
+                    </span>
                   )}
                 </div>
                 <Button
