@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -16,7 +15,11 @@ import {
 import { useAuth } from "@/contexts/AuthContext";
 import { useTranslation } from "@/lib/i18n";
 import { toast } from "sonner";
-import { realGoogleIntegration, GoogleCalendarEvent } from "@/lib/real-google-integration";
+import {
+  realGoogleIntegration,
+  GoogleCalendarEvent,
+} from "@/lib/real-google-integration";
+import { supabase } from "@/integrations/supabase/client";
 
 const RealTimeGoogleCalendar = () => {
   const { user } = useAuth();
@@ -62,19 +65,19 @@ const RealTimeGoogleCalendar = () => {
 
   const loadEvents = async () => {
     if (!isConnected) return;
-    
+
     setLoading(true);
     try {
       const startOfDay = new Date(selectedDate);
       startOfDay.setHours(0, 0, 0, 0);
-      
+
       const endOfDay = new Date(selectedDate);
       endOfDay.setHours(23, 59, 59, 999);
 
       const calendarEvents = await realGoogleIntegration.getEvents(
         "primary",
         startOfDay,
-        endOfDay
+        endOfDay,
       );
       setEvents(calendarEvents);
     } catch (error) {
@@ -88,15 +91,16 @@ const RealTimeGoogleCalendar = () => {
   const createFocusSessionFromEvent = async (event: GoogleCalendarEvent) => {
     try {
       const duration = Math.floor(
-        (new Date(event.end.dateTime).getTime() - new Date(event.start.dateTime).getTime()) / 
-        (1000 * 60)
+        (new Date(event.end.dateTime).getTime() -
+          new Date(event.start.dateTime).getTime()) /
+          (1000 * 60),
       );
-      
+
       await realGoogleIntegration.createFocusSession(
         `Voorbereiding: ${event.summary}`,
-        Math.min(duration, 120) // Max 2 uur
+        Math.min(duration, 120), // Max 2 uur
       );
-      
+
       toast.success("Focus sessie aangemaakt!");
     } catch (error) {
       console.error("Failed to create focus session:", error);
@@ -120,11 +124,11 @@ const RealTimeGoogleCalendar = () => {
               Nog niet verbonden met Google Agenda
             </p>
             <p>
-              Verbind je Google Agenda om je afspraken te importeren en automatisch 
-              focus sessies in te plannen.
+              Verbind je Google Agenda om je afspraken te importeren en
+              automatisch focus sessies in te plannen.
             </p>
           </div>
-          <Button 
+          <Button
             onClick={handleConnect}
             disabled={loading}
             className="bg-gradient-to-r from-blue-600 to-purple-600"
@@ -178,7 +182,9 @@ const RealTimeGoogleCalendar = () => {
         {/* Calendar */}
         <Card className="dark:bg-gray-800 dark:border-gray-700">
           <CardHeader>
-            <CardTitle className="text-gray-900 dark:text-white">Agenda</CardTitle>
+            <CardTitle className="text-gray-900 dark:text-white">
+              Agenda
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <Calendar
@@ -194,14 +200,16 @@ const RealTimeGoogleCalendar = () => {
         <Card className="dark:bg-gray-800 dark:border-gray-700">
           <CardHeader>
             <CardTitle className="text-gray-900 dark:text-white">
-              Afspraken voor {selectedDate.toLocaleDateString('nl-NL')}
+              Afspraken voor {selectedDate.toLocaleDateString("nl-NL")}
             </CardTitle>
           </CardHeader>
           <CardContent>
             {loading ? (
               <div className="text-center py-8">
                 <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-2 text-gray-400" />
-                <p className="text-gray-600 dark:text-gray-400">Afspraken laden...</p>
+                <p className="text-gray-600 dark:text-gray-400">
+                  Afspraken laden...
+                </p>
               </div>
             ) : events.length === 0 ? (
               <div className="text-center py-8 text-gray-600 dark:text-gray-400">
@@ -228,13 +236,21 @@ const RealTimeGoogleCalendar = () => {
                         <div className="flex items-center gap-4 mt-2 text-sm text-gray-500 dark:text-gray-400">
                           <span className="flex items-center gap-1">
                             <Clock className="h-3 w-3" />
-                            {new Date(event.start.dateTime).toLocaleTimeString('nl-NL', {
-                              hour: '2-digit',
-                              minute: '2-digit'
-                            })} - {new Date(event.end.dateTime).toLocaleTimeString('nl-NL', {
-                              hour: '2-digit',
-                              minute: '2-digit'
-                            })}
+                            {new Date(event.start.dateTime).toLocaleTimeString(
+                              "nl-NL",
+                              {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              },
+                            )}{" "}
+                            -{" "}
+                            {new Date(event.end.dateTime).toLocaleTimeString(
+                              "nl-NL",
+                              {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              },
+                            )}
                           </span>
                           {event.attendees && event.attendees.length > 0 && (
                             <span className="flex items-center gap-1">
