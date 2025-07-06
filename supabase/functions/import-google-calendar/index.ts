@@ -158,8 +158,14 @@ serve(async (req: Request) => {
               "Content-Type": "application/x-www-form-urlencoded",
             },
             body: new URLSearchParams({
-              client_id: Deno.env.get("GOOGLE_CLIENT_ID") || "",
-              client_secret: Deno.env.get("GOOGLE_CLIENT_SECRET") || "",
+              client_id:
+                Deno.env.get("GOOGLE_CLIENT_ID") ||
+                Deno.env.get("VITE_GOOGLE_CLIENT_ID") ||
+                "180012573174-pdiqpmgqssmmcg05es1ud8jaq2dl6enk.apps.googleusercontent.com",
+              client_secret:
+                Deno.env.get("GOOGLE_CLIENT_SECRET") ||
+                Deno.env.get("VITE_GOOGLE_CLIENT_SECRET") ||
+                "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",
               refresh_token: refresh_token,
               grant_type: "refresh_token",
             }),
