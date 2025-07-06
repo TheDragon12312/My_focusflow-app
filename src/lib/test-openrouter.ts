@@ -240,8 +240,11 @@ export async function testAndLog() {
 
 // Maak functies globally beschikbaar voor debugging
 if (typeof window !== "undefined") {
+  (window as any).testGoogleAI = testAndLog;
+  (window as any).testAIConnection = testOpenRouterConnection;
+  (window as any).testDirectGoogleAI = testDirectGoogleAI;
+  (window as any).testAIFull = testAndLog;
+
+  // Backwards compatibility
   (window as any).testOpenRouter = testAndLog;
-  (window as any).testOpenRouterConnection = testOpenRouterConnection;
-  (window as any).testDirectOpenRouterAPI = testDirectOpenRouterAPI;
-  (window as any).testOpenRouterFull = testAndLog;
 }
