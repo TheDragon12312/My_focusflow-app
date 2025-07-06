@@ -56,46 +56,63 @@ class GoogleOAuthService {
 
   async signOut(): Promise<void> {
     try {
-      const tokens = this.getStoredTokens();
-      if (tokens?.access_token) {
-        await fetch(
-          `https://oauth2.googleapis.com/revoke?token=${tokens.access_token}`,
-          {
-            method: "POST",
-          },
-        );
-      }
-      localStorage.removeItem(this.STORAGE_KEY);
-      localStorage.removeItem(this.CONNECTION_KEY);
+      // Sign out from Supabase Auth
+      await supabase.auth.signOut();
     } catch (error) {
       console.error("Google sign out error:", error);
     }
   }
 
   async getValidAccessToken(): Promise<string | null> {
-    const tokens = this.getStoredTokens();
-    if (!tokens) return null;
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
 
-    if (this.isTokenExpired(tokens)) {
-      const refreshedTokens = await this.refreshTokens(tokens.refresh_token);
-      if (refreshedTokens) {
-        this.storeTokens(refreshedTokens);
-        return refreshedTokens.access_token;
+      if (!session?.provider_token) {
+        return null;
       }
+
+      // Check if we need to refresh the token
+      if (
+        session.expires_at &&
+        session.expires_at * 1000 < Date.now() + 60000
+      ) {
+        const {
+          data: { session: refreshedSession },
+        } = await supabase.auth.refreshSession();
+        return refreshedSession?.provider_token || null;
+      }
+
+      return session.provider_token;
+    } catch (error) {
+      console.error("Error getting access token:", error);
       return null;
     }
-
-    return tokens.access_token;
   }
 
-  isSignedIn(): boolean {
-    const connected = localStorage.getItem(this.CONNECTION_KEY) === "true";
-    const tokens = this.getStoredTokens();
-    return connected && !!tokens && !this.isTokenExpired(tokens);
+  async isSignedIn(): Promise<boolean> {
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      return !!session?.provider_token;
+    } catch {
+      return false;
+    }
   }
 
   isConnected(): boolean {
-    return this.isSignedIn();
+    // This needs to be synchronous for compatibility
+    // We'll check localStorage for session indication
+    try {
+      const session = localStorage.getItem(
+        "sb-" + supabase.supabaseKey + "-auth-token",
+      );
+      return !!session;
+    } catch {
+      return false;
+    }
   }
 
   private async getUserProfile(accessToken: string): Promise<GoogleProfile> {
