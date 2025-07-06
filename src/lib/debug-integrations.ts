@@ -71,7 +71,18 @@ export class IntegrationsDebugger {
         .insert([testIntegration])
         .select();
 
-      console.log("Insert result:", { data: insertData, error: insertError });
+      console.log("Insert result:", {
+        data: insertData,
+        error: insertError
+          ? {
+              message: insertError.message,
+              details: insertError.details,
+              hint: insertError.hint,
+              code: insertError.code,
+              status: insertError.status,
+            }
+          : null,
+      });
 
       // 5. If insert worked, clean up
       if (insertData && insertData.length > 0) {
@@ -81,7 +92,17 @@ export class IntegrationsDebugger {
           .delete()
           .eq("id", insertData[0].id);
 
-        console.log("Delete result:", { error: deleteError });
+        console.log("Delete result:", {
+          error: deleteError
+            ? {
+                message: deleteError.message,
+                details: deleteError.details,
+                hint: deleteError.hint,
+                code: deleteError.code,
+                status: deleteError.status,
+              }
+            : null,
+        });
       }
 
       console.log("=== DEBUG COMPLETE ===");
