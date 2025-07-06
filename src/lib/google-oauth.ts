@@ -208,6 +208,17 @@ class GoogleOAuthService {
 
       console.log("Checking if user is signed in:", user.id);
 
+      // First check session for provider token
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (session?.provider_token && session.provider === "google") {
+        console.log(
+          "Found Google provider token in session - user is signed in",
+        );
+        return true;
+      }
+
       const { data: integrations, error } = await supabase
         .from("integrations")
         .select("id")
@@ -225,6 +236,19 @@ class GoogleOAuthService {
           status: error.status,
           fullError: error,
         });
+
+        // If no database record but have session token, that's still signed in
+        if (
+          error.code === "PGRST116" &&
+          session?.provider_token &&
+          session.provider === "google"
+        ) {
+          console.log(
+            "No database record but have session token - user is signed in",
+          );
+          return true;
+        }
+
         return false;
       }
 
