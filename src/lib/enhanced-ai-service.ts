@@ -234,7 +234,7 @@ class EnhancedAIService {
     let aiResponse: string;
 
     try {
-      console.log("🤖 Sending message to OpenRouter AI...", {
+      console.log("🤖 Sending message to Google AI...", {
         message: message.substring(0, 50) + "...",
       });
 
