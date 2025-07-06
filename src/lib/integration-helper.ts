@@ -79,6 +79,14 @@ export class IntegrationHelper {
         .eq("is_active", true);
 
       if (error) {
+        console.error("Database error in checkGoogleConnection:", {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code,
+          status: error.status,
+          fullError: error,
+        });
         return { connected: false, reason: `Database error: ${error.message}` };
       }
 
