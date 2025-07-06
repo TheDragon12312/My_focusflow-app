@@ -104,7 +104,15 @@ export class IntegrationHelper {
         hasValidToken: !!integration.access_token,
       };
     } catch (error) {
-      return { connected: false, reason: `Exception: ${error}` };
+      console.error("Exception in checkGoogleConnection:", {
+        message: error instanceof Error ? error.message : error,
+        stack: error instanceof Error ? error.stack : undefined,
+        fullError: error,
+      });
+      return {
+        connected: false,
+        reason: `Exception: ${error instanceof Error ? error.message : error}`,
+      };
     }
   }
 }
