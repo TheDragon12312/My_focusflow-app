@@ -141,7 +141,11 @@ const CalendarIntegration = () => {
       setIsGoogleConnected(!!googleIntegration);
       setIsMicrosoftConnected(!!microsoftIntegration);
     } catch (error) {
-      console.error("Error checking integration status:", error);
+      console.error("Error checking integration status:", {
+        message: error instanceof Error ? error.message : error,
+        stack: error instanceof Error ? error.stack : undefined,
+        fullError: error,
+      });
     }
   };
 
