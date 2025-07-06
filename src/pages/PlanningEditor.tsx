@@ -12,6 +12,7 @@ import { realGoogleIntegration } from "@/lib/real-google-integration";
 import { aiService } from "@/lib/ai-service";
 import { PersistentStats } from "@/lib/persistent-stats";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import {
   ArrowLeft,
   Plus,
