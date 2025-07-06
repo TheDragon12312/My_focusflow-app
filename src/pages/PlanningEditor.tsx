@@ -233,17 +233,42 @@ const PlanningEditor = () => {
       if (error) {
         console.error("Import error:", error);
 
-        // Check if it's a CORS or function not found error
+        // Check if it's a CORS or function not found error - use client-side fallback
         if (
           error.message?.includes("CORS") ||
           error.message?.includes("Failed to send a request")
         ) {
-          toast.error(
-            "Google Calendar import functie is niet beschikbaar. Probeer later opnieuw.",
+          console.log(
+            "Edge Function niet beschikbaar, using client-side fallback...",
           );
-          setErrorEvents(
-            "Edge Function niet beschikbaar - mogelijk niet gedeployed",
-          );
+          toast.info("Gebruik client-side import...");
+
+          try {
+            // Use client-side import as fallback
+            const result = await googleCalendarImport.importCalendarEvents();
+
+            if (result.success) {
+              toast.success(
+                `🎉 ${result.imported} calendar evenementen geïmporteerd! ${result.duplicates > 0 ? `(${result.duplicates} duplicaten overgeslagen)` : ""}`,
+              );
+
+              if (result.imported > 0) {
+                toast.success(
+                  "Ga naar /calendar om je geïmporteerde evenementen te zien",
+                );
+              }
+            }
+            return;
+          } catch (clientError) {
+            console.error("Client-side import error:", clientError);
+            const errorMsg =
+              clientError instanceof Error
+                ? clientError.message
+                : "Client-side import mislukt";
+            setErrorEvents(errorMsg);
+            toast.error("Import mislukt: " + errorMsg);
+            return;
+          }
         } else {
           const errorMsg = error.message || "Onbekende fout bij importeren";
           setErrorEvents(errorMsg);
