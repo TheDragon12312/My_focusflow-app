@@ -115,73 +115,24 @@ class GoogleOAuthService {
     }
   }
 
-  private async getUserProfile(accessToken: string): Promise<GoogleProfile> {
-    const response = await fetch(
-      "https://www.googleapis.com/oauth2/v3/userinfo",
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      },
-    );
-
-    if (!response.ok) {
-      throw new Error("Failed to get user profile");
-    }
-
-    return response.json();
-  }
-
-  private storeTokens(tokens: GoogleTokens): void {
-    const tokenData = {
-      ...tokens,
-      expires_at: tokens.expires_at || Date.now() + tokens.expires_in * 1000,
-    };
-    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(tokenData));
-    localStorage.setItem(this.CONNECTION_KEY, "true");
-  }
-
-  private getStoredTokens(): (GoogleTokens & { expires_at: number }) | null {
+  async getUserProfile(): Promise<GoogleProfile | null> {
     try {
-      const stored = localStorage.getItem(this.STORAGE_KEY);
-      return stored ? JSON.parse(stored) : null;
-    } catch {
-      return null;
-    }
-  }
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
 
-  private isTokenExpired(tokens: { expires_at: number }): boolean {
-    return Date.now() >= tokens.expires_at - 60000; // 1 minute buffer
-  }
+      if (!user) return null;
 
-  private async refreshTokens(
-    refreshToken?: string,
-  ): Promise<GoogleTokens | null> {
-    if (!refreshToken) return null;
-
-    try {
-      const response = await fetch("https://oauth2.googleapis.com/token", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-        body: new URLSearchParams({
-          client_id: GOOGLE_CONFIG.clientId,
-          client_secret: GOOGLE_CONFIG.clientSecret,
-          refresh_token: refreshToken,
-          grant_type: "refresh_token",
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to refresh tokens");
-      }
-
-      const newTokens = await response.json();
-      newTokens.expires_at = Date.now() + newTokens.expires_in * 1000;
-      return newTokens;
+      return {
+        id: user.id,
+        email: user.email || "",
+        name: user.user_metadata?.full_name || user.email || "",
+        picture: user.user_metadata?.avatar_url,
+        given_name: user.user_metadata?.given_name,
+        family_name: user.user_metadata?.family_name,
+      };
     } catch (error) {
-      console.error("Token refresh error:", error);
+      console.error("Error getting user profile:", error);
       return null;
     }
   }
