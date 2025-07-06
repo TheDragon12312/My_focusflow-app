@@ -142,7 +142,7 @@ export async function checkDeployment() {
     console.log("1. Deploy function: supabase functions deploy ai-coach-chat");
     console.log("2. Check if API key is working in OpenRouter dashboard");
     console.log(
-      "3. API key should be: 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",
+      "3. Google AI API key should be: AIzaSyAW65ss1aUDSFkM9apP9zxRycAvZ3WUV7U",
     );
     return { success: false, error: "API key configuration failed" };
   }
