@@ -260,19 +260,21 @@ class EnhancedAIService {
           response.includes("problemen met mijn verbinding") ||
           response.includes("technische storing") ||
           response.includes("API key") ||
-          response.includes("kan nu even geen antwoord");
+          response.includes("kan nu even geen antwoord") ||
+          response.includes("❌") ||
+          response.includes("Google AI API fout");
 
         if (isFallbackResponse) {
           console.log(
-            "⚠️ Received fallback response from function, OpenRouter API call failed inside function",
+            "⚠️ Received fallback response from function, AI API call failed inside function",
           );
           console.log("📝 Fallback response:", response);
           aiResponse =
-            "❌ OpenRouter API call faalde in de Supabase function. Controleer de deployment en API key configuratie.";
+            "❌ AI API call faalde in de Supabase function. Controleer de deployment en API key configuratie.";
         } else {
           aiResponse = response;
           console.log(
-            "✅ Got REAL AI response from OpenRouter:",
+            "✅ Got REAL AI response from Google AI:",
             aiResponse.substring(0, 100) + "...",
           );
         }
