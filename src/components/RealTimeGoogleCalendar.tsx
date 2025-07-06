@@ -27,6 +27,7 @@ const RealTimeGoogleCalendar = () => {
   const [isConnected, setIsConnected] = useState(false);
   const [events, setEvents] = useState<GoogleCalendarEvent[]>([]);
   const [loading, setLoading] = useState(false);
+  const [importing, setImporting] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
   useEffect(() => {
