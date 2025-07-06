@@ -78,7 +78,14 @@ class GoogleOAuthService {
         .single();
 
       if (error) {
-        console.error("Error fetching integrations:", error);
+        console.error("Error fetching integrations:", {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code,
+          status: error.status,
+          fullError: error,
+        });
         // If the error is about RLS or permissions, try without .single() to debug
         if (
           error.message?.includes("406") ||
@@ -94,7 +101,15 @@ class GoogleOAuthService {
 
           console.log("All integrations query result:", {
             data: allIntegrations,
-            error: listError,
+            error: listError
+              ? {
+                  message: listError.message,
+                  details: listError.details,
+                  hint: listError.hint,
+                  code: listError.code,
+                  status: listError.status,
+                }
+              : null,
           });
           return null;
         }
