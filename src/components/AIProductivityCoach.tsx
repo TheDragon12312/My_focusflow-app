@@ -454,7 +454,11 @@ const AIProductivityCoach = () => {
                 <p className="text-xs text-muted-foreground">
                   {coachState.isGenerating
                     ? "Analyseert..."
-                    : `${coachState.insights.length} insights beschikbaar`}
+                    : coachState.googleAIError
+                      ? "Google AI fout"
+                      : !coachState.isGoogleAIInitialized
+                        ? "Google AI initialiseren..."
+                        : `${coachState.insights.length} insights beschikbaar`}
                 </p>
               </div>
             )}
