@@ -29,25 +29,9 @@ class GoogleOAuthService {
     tokens: GoogleTokens;
   } | null> {
     try {
-      // Use Supabase Auth with Google provider
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          scopes: "https://www.googleapis.com/auth/calendar.readonly",
-          queryParams: {
-            access_type: "offline",
-            prompt: "consent",
-          },
-        },
-      });
-
-      if (error) {
-        throw error;
-      }
-
-      // The actual token handling will be done in the OAuth callback
-      // For now, we'll return a success indicator
-      return { profile: null as any, tokens: null as any };
+      // Redirect to calendar integration page for proper OAuth flow
+      window.location.href = "/calendar";
+      return null;
     } catch (error) {
       console.error("Google OAuth error:", error);
       throw new Error("Authentication failed");
@@ -56,8 +40,17 @@ class GoogleOAuthService {
 
   async signOut(): Promise<void> {
     try {
-      // Sign out from Supabase Auth
-      await supabase.auth.signOut();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) return;
+
+      // Remove Google integration from database
+      await supabase
+        .from("integrations")
+        .delete()
+        .eq("user_id", user.id)
+        .eq("integration_type", "google_calendar");
     } catch (error) {
       console.error("Google sign out error:", error);
     }
@@ -66,25 +59,53 @@ class GoogleOAuthService {
   async getValidAccessToken(): Promise<string | null> {
     try {
       const {
-        data: { session },
-      } = await supabase.auth.getSession();
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) return null;
 
-      if (!session?.provider_token) {
+      // Get Google integration from database
+      const { data: integrations } = await supabase
+        .from("integrations")
+        .select("access_token, refresh_token, expires_at")
+        .eq("user_id", user.id)
+        .eq("integration_type", "google_calendar")
+        .eq("is_active", true)
+        .single();
+
+      if (!integrations?.access_token) {
         return null;
       }
 
-      // Check if we need to refresh the token
+      // Check if token is expired and needs refresh
       if (
-        session.expires_at &&
-        session.expires_at * 1000 < Date.now() + 60000
+        integrations.expires_at &&
+        new Date(integrations.expires_at) <= new Date(Date.now() + 60000)
       ) {
-        const {
-          data: { session: refreshedSession },
-        } = await supabase.auth.refreshSession();
-        return refreshedSession?.provider_token || null;
+        // Token will expire in less than 1 minute, try to refresh
+        if (integrations.refresh_token) {
+          const refreshedToken = await this.refreshAccessToken(
+            integrations.refresh_token,
+          );
+          if (refreshedToken) {
+            // Update the database with new token
+            await supabase
+              .from("integrations")
+              .update({
+                access_token: refreshedToken.access_token,
+                expires_at: new Date(
+                  Date.now() + refreshedToken.expires_in * 1000,
+                ).toISOString(),
+              })
+              .eq("user_id", user.id)
+              .eq("integration_type", "google_calendar");
+
+            return refreshedToken.access_token;
+          }
+        }
+        return null;
       }
 
-      return session.provider_token;
+      return integrations.access_token;
     } catch (error) {
       console.error("Error getting access token:", error);
       return null;
@@ -94,17 +115,27 @@ class GoogleOAuthService {
   async isSignedIn(): Promise<boolean> {
     try {
       const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      return !!session?.provider_token;
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) return false;
+
+      const { data: integrations } = await supabase
+        .from("integrations")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("integration_type", "google_calendar")
+        .eq("is_active", true)
+        .single();
+
+      return !!integrations;
     } catch {
       return false;
     }
   }
 
   isConnected(): boolean {
-    // This needs to be synchronous for compatibility
-    // We'll check localStorage for session indication
+    // This is a synchronous check for UI purposes
+    // We'll do a simple check but components should use isSignedIn() for accuracy
     try {
       const session = localStorage.getItem(
         "sb-cwgnlsrqnyugloobrsxz-auth-token",
@@ -112,6 +143,34 @@ class GoogleOAuthService {
       return !!session;
     } catch {
       return false;
+    }
+  }
+
+  private async refreshAccessToken(
+    refreshToken: string,
+  ): Promise<{ access_token: string; expires_in: number } | null> {
+    try {
+      const response = await fetch("https://oauth2.googleapis.com/token", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: new URLSearchParams({
+          client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID || "",
+          client_secret: import.meta.env.VITE_GOOGLE_CLIENT_SECRET || "",
+          refresh_token: refreshToken,
+          grant_type: "refresh_token",
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to refresh token");
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error("Token refresh error:", error);
+      return null;
     }
   }
 
