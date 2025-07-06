@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { realGoogleIntegration } from "@/lib/real-google-integration";
 import { aiService } from "@/lib/ai-service";
 import { googleCalendarImport } from "@/lib/google-calendar-import";
+import { integrationsDebugger } from "@/lib/debug-integrations";
 import { PersistentStats } from "@/lib/persistent-stats";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
