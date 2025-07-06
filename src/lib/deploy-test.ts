@@ -164,9 +164,7 @@ export async function checkDeployment() {
       "1. Deploy the function: supabase functions deploy ai-coach-chat",
     );
     console.log("2. Check function logs in Supabase dashboard");
-    console.log(
-      "3. Verify model name: deepseek/deepseek-r1-0528-qwen3-8b:free",
-    );
+    console.log("3. Verify Google AI model: gemini-1.5-flash");
   }
 
   return result;
