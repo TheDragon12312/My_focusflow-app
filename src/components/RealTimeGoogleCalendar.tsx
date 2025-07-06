@@ -216,18 +216,38 @@ const RealTimeGoogleCalendar = () => {
                 </p>
               </div>
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={loadEvents}
-              disabled={loading}
-            >
-              {loading ? (
-                <RefreshCw className="h-4 w-4 animate-spin" />
-              ) : (
-                <RefreshCw className="h-4 w-4" />
-              )}
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={loadEvents}
+                disabled={loading}
+              >
+                {loading ? (
+                  <RefreshCw className="h-4 w-4 animate-spin" />
+                ) : (
+                  <RefreshCw className="h-4 w-4" />
+                )}
+              </Button>
+              <Button
+                onClick={importToPlanning}
+                disabled={importing}
+                size="sm"
+                className="bg-green-600 hover:bg-green-700 text-white"
+              >
+                {importing ? (
+                  <>
+                    <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                    Importeren...
+                  </>
+                ) : (
+                  <>
+                    <CalendarIcon className="h-4 w-4 mr-2" />
+                    Importeer naar Planning
+                  </>
+                )}
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>
