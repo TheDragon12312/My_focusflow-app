@@ -113,13 +113,13 @@ export async function testAPIKeyConfig() {
     return false;
   }
 
-  if (data?.response?.includes("Geen OpenRouter API key")) {
-    console.error("❌ API key not found in environment");
+  if (data?.response?.includes("Geen Google AI API key")) {
+    console.error("❌ Google AI API key not found in environment");
     return false;
   }
 
-  if (data?.response?.includes("OpenRouter API fout")) {
-    console.error("❌ OpenRouter API error - check key validity");
+  if (data?.response?.includes("Google AI API fout")) {
+    console.error("❌ Google AI API error - check key validity");
     return false;
   }
 
