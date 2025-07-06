@@ -590,13 +590,52 @@ const PlanningEditor = () => {
             📅 Google Calendar importeren
           </Button>
 
-          <Button
-            onClick={() => integrationsDebugger.debugTableAccess()}
-            variant="outline"
-            className="w-full mt-2"
-          >
-            🐛 Debug Integrations Table
-          </Button>
+          <div className="space-y-2 mt-2">
+            <Button
+              onClick={() => integrationsDebugger.debugTableAccess()}
+              variant="outline"
+              className="w-full"
+            >
+              🐛 Debug Integrations Table
+            </Button>
+
+            <Button
+              onClick={async () => {
+                try {
+                  const result =
+                    await integrationHelper.checkGoogleConnection();
+                  console.log("Connection check:", result);
+                  if (result.connected) {
+                    toast.success("Google Calendar is connected!");
+                  } else {
+                    toast.error(`Not connected: ${result.reason}`);
+                  }
+                } catch (error) {
+                  toast.error("Connection check failed");
+                }
+              }}
+              variant="outline"
+              className="w-full"
+            >
+              🔍 Check Connection
+            </Button>
+
+            <Button
+              onClick={async () => {
+                try {
+                  await integrationHelper.storeTestGoogleIntegration();
+                  toast.success("Test integration stored!");
+                } catch (error) {
+                  toast.error("Failed to store test integration");
+                  console.error(error);
+                }
+              }}
+              variant="outline"
+              className="w-full"
+            >
+              🧪 Store Test Integration
+            </Button>
+          </div>
           {loadingEvents && (
             <div className="text-center text-gray-500 mt-2">
               Afspraken ophalen...
