@@ -197,7 +197,11 @@ class GoogleOAuthService {
       console.log("Is signed in:", isSignedIn);
       return isSignedIn;
     } catch (error) {
-      console.error("Exception in isSignedIn:", error);
+      console.error("Exception in isSignedIn:", {
+        message: error instanceof Error ? error.message : error,
+        stack: error instanceof Error ? error.stack : undefined,
+        fullError: error,
+      });
       return false;
     }
   }
