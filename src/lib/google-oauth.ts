@@ -61,10 +61,15 @@ class GoogleOAuthService {
       const {
         data: { user },
       } = await supabase.auth.getUser();
-      if (!user) return null;
+      if (!user) {
+        console.log("No authenticated user found");
+        return null;
+      }
+
+      console.log("Getting access token for user:", user.id);
 
       // Get Google integration from database
-      const { data: integrations } = await supabase
+      const { data: integrations, error } = await supabase
         .from("integrations")
         .select("access_token, refresh_token, expires_at")
         .eq("user_id", user.id)
@@ -72,7 +77,32 @@ class GoogleOAuthService {
         .eq("is_active", true)
         .single();
 
+      if (error) {
+        console.error("Error fetching integrations:", error);
+        // If the error is about RLS or permissions, try without .single() to debug
+        if (
+          error.message?.includes("406") ||
+          error.message?.includes("Not Acceptable")
+        ) {
+          console.log("Trying query without .single() to debug...");
+          const { data: allIntegrations, error: listError } = await supabase
+            .from("integrations")
+            .select("access_token, refresh_token, expires_at")
+            .eq("user_id", user.id)
+            .eq("integration_type", "google_calendar")
+            .eq("is_active", true);
+
+          console.log("All integrations query result:", {
+            data: allIntegrations,
+            error: listError,
+          });
+          return null;
+        }
+        return null;
+      }
+
       if (!integrations?.access_token) {
+        console.log("No access token found in integrations");
         return null;
       }
 
