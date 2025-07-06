@@ -232,7 +232,11 @@ const CalendarIntegration = () => {
       // For now, we'll show a message that events are imported to planning
       toast.success("Google Calendar events worden geladen...");
     } catch (error) {
-      console.error("Failed to load Google events:", error);
+      console.error("Failed to load Google events:", {
+        message: error instanceof Error ? error.message : error,
+        stack: error instanceof Error ? error.stack : undefined,
+        fullError: error,
+      });
       toast.error("Kon Google Calendar events niet laden");
     }
   };
