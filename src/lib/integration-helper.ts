@@ -39,7 +39,14 @@ export class IntegrationHelper {
         .select();
 
       if (error) {
-        console.error("Failed to store integration:", error);
+        console.error("Failed to store integration:", {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code,
+          status: error.status,
+          fullError: error,
+        });
         throw error;
       }
 
