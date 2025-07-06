@@ -76,6 +76,15 @@ class GoogleOAuthService {
 
       console.log("Getting access token for user:", user.id);
 
+      // First, try to get token from current session (if user just logged in with Google)
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (session?.provider_token && session.provider === "google") {
+        console.log("Found Google provider token in session");
+        return session.provider_token;
+      }
+
       // Get Google integration from database
       const { data: integrations, error } = await supabase
         .from("integrations")
