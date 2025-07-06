@@ -250,7 +250,7 @@ class EnhancedAIService {
         },
       });
 
-      console.log("🤖 OpenRouter response:", { data, error });
+      console.log("🤖 Google AI response:", { data, error });
 
       if (!error && data?.response && data.response.trim().length > 0) {
         const response = data.response.trim();
