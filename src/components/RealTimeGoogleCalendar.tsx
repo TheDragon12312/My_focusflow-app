@@ -46,7 +46,11 @@ const RealTimeGoogleCalendar = () => {
       const connected = await realGoogleIntegration.isConnectedAsync();
       setIsConnected(connected);
     } catch (error) {
-      console.error("Error checking connection status:", error);
+      console.error("Error checking connection status:", {
+        message: error instanceof Error ? error.message : error,
+        stack: error instanceof Error ? error.stack : undefined,
+        fullError: error,
+      });
       setIsConnected(false);
     }
   };
