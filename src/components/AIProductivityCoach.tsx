@@ -591,7 +591,7 @@ const AIProductivityCoach = () => {
                       size="sm"
                       onClick={() => testAndLog()}
                       className="text-xs px-1 py-0.5 h-auto opacity-50 hover:opacity-100"
-                      title="Test OpenRouter API"
+                      title="Test Google AI API"
                     >
                       🧪
                     </Button>
