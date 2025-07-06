@@ -268,7 +268,15 @@ const PlanningEditor = () => {
                 ? clientError.message
                 : "Client-side import mislukt";
             setErrorEvents(errorMsg);
-            toast.error("Import mislukt: " + errorMsg);
+
+            // Check if it's a connection issue and provide helpful guidance
+            if (errorMsg.includes("No Google Calendar connection found")) {
+              toast.error(
+                "Google Calendar niet verbonden - ga naar /calendar om te verbinden",
+              );
+            } else {
+              toast.error("Import mislukt: " + errorMsg);
+            }
             return;
           }
         } else {
