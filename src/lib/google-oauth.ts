@@ -1,9 +1,8 @@
+import { supabase } from "@/integrations/supabase/client";
+
 // Google OAuth Configuration
 export const GOOGLE_CONFIG = {
-  clientId: import.meta.env.VITE_GOOGLE_CLIENT_ID || "",
-  clientSecret: import.meta.env.VITE_GOOGLE_CLIENT_SECRET || "",
-  redirectUri: `${window.location.origin}/auth/google/callback`,
-  scope: "https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/gmail.readonly openid profile email",
+  scope: "https://www.googleapis.com/auth/calendar.readonly",
 };
 
 export interface GoogleProfile {
@@ -25,44 +24,33 @@ export interface GoogleTokens {
 }
 
 class GoogleOAuthService {
-  private readonly STORAGE_KEY = "google_oauth_tokens";
-  private readonly CONNECTION_KEY = "google_connected";
-
-  async signIn(): Promise<{ profile: GoogleProfile; tokens: GoogleTokens } | null> {
+  async signIn(): Promise<{
+    profile: GoogleProfile;
+    tokens: GoogleTokens;
+  } | null> {
     try {
-      const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${
-        GOOGLE_CONFIG.clientId
-      }&response_type=code&redirect_uri=${encodeURIComponent(
-        GOOGLE_CONFIG.redirectUri
-      )}&scope=${encodeURIComponent(GOOGLE_CONFIG.scope)}&access_type=offline&prompt=consent`;
+      // Use Supabase Auth with Google provider
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          scopes: "https://www.googleapis.com/auth/calendar.readonly",
+          queryParams: {
+            access_type: "offline",
+            prompt: "consent",
+          },
+        },
+      });
 
-      const popup = window.open(authUrl, "google-oauth", "width=500,height=600");
-      if (!popup) {
-        throw new Error("Popup blocked. Please allow popups for Google login.");
+      if (error) {
+        throw error;
       }
 
-      return new Promise((resolve, reject) => {
-        const interval = setInterval(async () => {
-          try {
-            if (popup.closed) {
-              clearInterval(interval);
-              const tokens = this.getStoredTokens();
-              if (tokens) {
-                const profile = await this.getUserProfile(tokens.access_token);
-                resolve({ profile, tokens });
-              } else {
-                reject(new Error("Authentication failed"));
-              }
-            }
-          } catch (error) {
-            clearInterval(interval);
-            reject(error);
-          }
-        }, 1000);
-      });
+      // The actual token handling will be done in the OAuth callback
+      // For now, we'll return a success indicator
+      return { profile: null as any, tokens: null as any };
     } catch (error) {
       console.error("Google OAuth error:", error);
-      return null;
+      throw new Error("Authentication failed");
     }
   }
 
@@ -70,9 +58,12 @@ class GoogleOAuthService {
     try {
       const tokens = this.getStoredTokens();
       if (tokens?.access_token) {
-        await fetch(`https://oauth2.googleapis.com/revoke?token=${tokens.access_token}`, {
-          method: "POST",
-        });
+        await fetch(
+          `https://oauth2.googleapis.com/revoke?token=${tokens.access_token}`,
+          {
+            method: "POST",
+          },
+        );
       }
       localStorage.removeItem(this.STORAGE_KEY);
       localStorage.removeItem(this.CONNECTION_KEY);
@@ -108,11 +99,14 @@ class GoogleOAuthService {
   }
 
   private async getUserProfile(accessToken: string): Promise<GoogleProfile> {
-    const response = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
+    const response = await fetch(
+      "https://www.googleapis.com/oauth2/v3/userinfo",
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
       },
-    });
+    );
 
     if (!response.ok) {
       throw new Error("Failed to get user profile");
@@ -143,7 +137,9 @@ class GoogleOAuthService {
     return Date.now() >= tokens.expires_at - 60000; // 1 minute buffer
   }
 
-  private async refreshTokens(refreshToken?: string): Promise<GoogleTokens | null> {
+  private async refreshTokens(
+    refreshToken?: string,
+  ): Promise<GoogleTokens | null> {
     if (!refreshToken) return null;
 
     try {
