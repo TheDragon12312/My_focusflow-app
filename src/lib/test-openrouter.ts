@@ -184,17 +184,17 @@ export async function testDirectGoogleAI(): Promise<{
  * Gebruik: testAndLog()
  */
 export async function testAndLog() {
-  console.log("🧪 Running comprehensive OpenRouter tests...");
+  console.log("🧪 Running comprehensive Google AI tests...");
 
   // Test 1: Direct API
-  console.log("\n1️⃣ Testing direct OpenRouter API...");
-  const directResult = await testDirectOpenRouterAPI();
+  console.log("\n1️⃣ Testing direct Google AI API...");
+  const directResult = await testDirectGoogleAI();
 
   if (directResult.success) {
-    console.log("✅ Direct OpenRouter API WERKT!");
+    console.log("✅ Direct Google AI API WERKT!");
     console.log("📝 Direct Response:", directResult.response);
   } else {
-    console.error("❌ Direct OpenRouter API GEFAALD!");
+    console.error("❌ Direct Google AI API GEFAALD!");
     console.error("📝 Error:", directResult.error);
   }
 
