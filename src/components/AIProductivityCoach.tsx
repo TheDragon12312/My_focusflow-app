@@ -76,6 +76,8 @@ const AIProductivityCoach = () => {
     chatMessage: "",
     chatHistory: [],
     isSendingMessage: false,
+    isGoogleAIInitialized: false,
+    googleAIError: null,
   });
 
   useEffect(() => {
