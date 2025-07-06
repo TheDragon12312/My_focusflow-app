@@ -107,7 +107,7 @@ class GoogleOAuthService {
     // We'll check localStorage for session indication
     try {
       const session = localStorage.getItem(
-        "sb-" + supabase.supabaseKey + "-auth-token",
+        "sb-cwgnlsrqnyugloobrsxz-auth-token",
       );
       return !!session;
     } catch {
