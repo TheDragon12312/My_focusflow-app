@@ -635,6 +635,16 @@ const PlanningEditor = () => {
             >
               🧪 Store Test Integration
             </Button>
+
+            <Button
+              onClick={() => {
+                window.location.href = "/calendar";
+              }}
+              variant="default"
+              className="w-full bg-green-600 hover:bg-green-700"
+            >
+              🔗 Connect Google Calendar
+            </Button>
           </div>
           {loadingEvents && (
             <div className="text-center text-gray-500 mt-2">
