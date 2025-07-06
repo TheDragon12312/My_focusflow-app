@@ -40,26 +40,24 @@ const RealTimeGoogleCalendar = () => {
     }
   }, [isConnected, selectedDate]);
 
-  const checkConnectionStatus = () => {
-    setIsConnected(realGoogleIntegration.isConnected());
+  const checkConnectionStatus = async () => {
+    try {
+      const connected = await realGoogleIntegration.isConnectedAsync();
+      setIsConnected(connected);
+    } catch (error) {
+      console.error("Error checking connection status:", error);
+      setIsConnected(false);
+    }
   };
 
   const handleConnect = async () => {
     setLoading(true);
     try {
-      // In een echte implementatie zou dit de Google OAuth flow starten
-      const success = await realGoogleIntegration.connect();
-      if (success) {
-        setIsConnected(true);
-        toast.success(t("calendar.connected"));
-        await loadEvents();
-      } else {
-        toast.error("Verbinding met Google Agenda mislukt");
-      }
+      // Redirect to calendar integration page for OAuth flow
+      await realGoogleIntegration.connect();
     } catch (error) {
       console.error("Google Calendar connection error:", error);
       toast.error("Er ging iets mis bij het verbinden");
-    } finally {
       setLoading(false);
     }
   };
