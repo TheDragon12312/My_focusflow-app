@@ -89,7 +89,11 @@ const RealTimeGoogleCalendar = () => {
       );
       setEvents(calendarEvents);
     } catch (error) {
-      console.error("Failed to load events:", error);
+      console.error("Failed to load events:", {
+        message: error instanceof Error ? error.message : error,
+        stack: error instanceof Error ? error.stack : undefined,
+        fullError: error,
+      });
       toast.error("Kon afspraken niet laden");
     } finally {
       setLoading(false);
