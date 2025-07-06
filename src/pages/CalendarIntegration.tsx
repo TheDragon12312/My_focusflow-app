@@ -243,14 +243,34 @@ const CalendarIntegration = () => {
       if (response.error) {
         console.error("Import error:", response.error);
 
-        // Check if it's a CORS or function not found error
+        // Check if it's a CORS or function not found error - use client-side fallback
         if (
           response.error.message?.includes("CORS") ||
           response.error.message?.includes("Failed to send a request")
         ) {
-          toast.error(
-            "Google Calendar import functie is niet beschikbaar. Probeer later opnieuw.",
+          console.log(
+            "Edge Function niet beschikbaar, using client-side fallback...",
           );
+          toast.info("Gebruik client-side import...");
+
+          try {
+            // Use client-side import as fallback
+            const result = await googleCalendarImport.importCalendarEvents();
+
+            if (result.success) {
+              toast.success(
+                `🎉 ${result.imported} calendar evenementen geïmporteerd! ${result.duplicates > 0 ? `(${result.duplicates} duplicaten overgeslagen)` : ""}`,
+              );
+              await loadGoogleEvents(); // Refresh the events display
+            }
+          } catch (clientError) {
+            console.error("Client-side import error:", clientError);
+            const errorMsg =
+              clientError instanceof Error
+                ? clientError.message
+                : "Client-side import mislukt";
+            toast.error("Import mislukt: " + errorMsg);
+          }
         } else {
           toast.error(
             "Import mislukt: " + (response.error.message || "Onbekende fout"),
