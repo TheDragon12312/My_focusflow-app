@@ -83,13 +83,38 @@ const AIProductivityCoach = () => {
   useEffect(() => {
     if (!user?.id) return;
 
-    // Load existing insights and chat history
+    // Initialize Google AI
+    const initializeGoogleAI = async () => {
+      try {
+        await googleAIService.initializeChat();
+        const googleChatHistory = googleAIService.getChatHistory();
+
+        setCoachState((prev) => ({
+          ...prev,
+          chatHistory: googleChatHistory,
+          isGoogleAIInitialized: true,
+          googleAIError: null,
+        }));
+
+        console.log("✅ Google AI geïnitialiseerd voor AI Coach");
+      } catch (error) {
+        console.error("❌ Fout bij initialiseren Google AI:", error);
+        setCoachState((prev) => ({
+          ...prev,
+          googleAIError:
+            error instanceof Error
+              ? error.message
+              : "Onbekende fout bij Google AI",
+          isGoogleAIInitialized: false,
+        }));
+      }
+    };
+
+    // Load existing insights
     loadStoredInsights();
-    enhancedAIService.loadChatHistory();
-    setCoachState((prev) => ({
-      ...prev,
-      chatHistory: enhancedAIService.getChatHistory(),
-    }));
+
+    // Initialize Google AI
+    initializeGoogleAI();
 
     // Generate new insights if needed
     const shouldGenerate =
