@@ -310,7 +310,7 @@ const Checkout = () => {
             <Card className="shadow-lg border-0">
               <CardContent className="p-6">
                 <h4 className="font-semibold mb-4 text-gray-900">
-                  🔒 Veilig & Betrouwbaar
+                  🔒 Safe & Reliable
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div className="flex items-center space-x-3">
