@@ -66,7 +66,7 @@ const Checkout = () => {
     }
 
     if (!plan) {
-      toast.error("Geen plan geselecteerd");
+      toast.error("No plan selected");
       return;
     }
 
