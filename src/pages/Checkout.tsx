@@ -74,14 +74,15 @@ const Checkout = () => {
 
     try {
       // Use Paddle for real subscription payments
-      const priceId = billingCycle === "yearly" 
-        ? `${selectedPlan}_yearly` 
-        : `${selectedPlan}_monthly`;
+      const priceId =
+        billingCycle === "yearly"
+          ? `${selectedPlan}_yearly`
+          : `${selectedPlan}_monthly`;
 
       await paddleService.openCheckout({
         items: [{ priceId }],
-        customer: { 
-          email: user.email 
+        customer: {
+          email: user.email,
         },
         customData: {
           planId: selectedPlan,
@@ -144,11 +145,11 @@ const Checkout = () => {
           </div>
           <Button
             variant="ghost"
-            onClick={() => navigate("/pricing")}
+            onClick={() => navigate("/")}
             className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
           >
             <ArrowLeft className="h-4 w-4" />
-            <span>Terug naar prijzen</span>
+            <span>Back to Home</span>
           </Button>
         </div>
       </div>
