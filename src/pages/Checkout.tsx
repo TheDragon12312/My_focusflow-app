@@ -409,7 +409,7 @@ const Checkout = () => {
                     className="w-full py-6 text-lg font-semibold bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700"
                     onClick={() => navigate("/dashboard")}
                   >
-                    🚀 Gratis Starten
+                    🚀 Start Free
                   </Button>
                 ) : (
                   <Button
@@ -420,12 +420,12 @@ const Checkout = () => {
                     {isLoading ? (
                       <>
                         <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                        Paddle laden...
+                        Loading Paddle...
                       </>
                     ) : (
                       <>
                         <CreditCard className="h-5 w-5 mr-2" />
-                        Betaal met Paddle
+                        Pay with Paddle
                       </>
                     )}
                   </Button>
