@@ -434,15 +434,15 @@ const Checkout = () => {
                 <div className="space-y-3 text-center">
                   <div className="flex items-center justify-center space-x-2 text-sm text-gray-500">
                     <Check className="h-4 w-4 text-green-500" />
-                    <span>30 dagen geld-terug-garantie</span>
+                    <span>30-day money-back guarantee</span>
                   </div>
                   <div className="flex items-center justify-center space-x-2 text-sm text-gray-500">
                     <Check className="h-4 w-4 text-green-500" />
-                    <span>Cancel op elk moment</span>
+                    <span>Cancel anytime</span>
                   </div>
                   <div className="flex items-center justify-center space-x-2 text-sm text-gray-500">
                     <Check className="h-4 w-4 text-green-500" />
-                    <span>Directe toegang</span>
+                    <span>Instant access</span>
                   </div>
                 </div>
               </CardContent>
