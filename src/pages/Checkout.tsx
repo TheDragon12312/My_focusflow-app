@@ -159,13 +159,13 @@ const Checkout = () => {
         <div className="text-center mb-12">
           <div className="inline-flex items-center space-x-2 px-4 py-2 bg-indigo-100 rounded-full text-indigo-800 text-sm font-medium mb-4">
             <Sparkles className="h-4 w-4" />
-            <span>Laatste stap</span>
+            <span>Final step</span>
           </div>
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Welkom bij {plan.name}
+            Welcome to {plan.name}
           </h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Start je productiviteitsreis met de beste tools en AI-ondersteuning
+            Start your productivity journey with the best tools and AI support
           </p>
         </div>
 
