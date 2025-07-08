@@ -387,7 +387,7 @@ const Checkout = () => {
 
                   {billingCycle === "yearly" && plan.price > 0 && (
                     <div className="flex justify-between text-green-600">
-                      <span>💰 Jaarlijkse korting</span>
+                      <span>💰 Annual discount</span>
                       <span className="font-medium">
                         -€{pricingService.getYearlySavings(plan.price)}
                       </span>
@@ -397,7 +397,7 @@ const Checkout = () => {
                   <Separator />
 
                   <div className="flex justify-between items-center text-lg font-bold">
-                    <span>Totaal</span>
+                    <span>Total</span>
                     <span className="text-2xl bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
                       {getPriceDisplay()}
                     </span>
@@ -409,7 +409,7 @@ const Checkout = () => {
                     className="w-full py-6 text-lg font-semibold bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700"
                     onClick={() => navigate("/dashboard")}
                   >
-                    ���� Gratis Starten
+                    🚀 Gratis Starten
                   </Button>
                 ) : (
                   <Button
