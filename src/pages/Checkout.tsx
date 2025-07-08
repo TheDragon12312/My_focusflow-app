@@ -359,12 +359,12 @@ const Checkout = () => {
                   </div>
                   <div>
                     <p className="text-gray-700 italic mb-3">
-                      "FocusFlow heeft mijn productiviteit met 40% verhoogd. De
-                      AI coach is ongelooflijk nuttig!"
+                      "FocusFlow increased my productivity by 40%. The AI coach
+                      is incredibly useful!"
                     </p>
                     <div className="font-medium">Sarah van der Berg</div>
                     <div className="text-sm text-gray-500">
-                      Product Manager bij TechCorp
+                      Product Manager at TechCorp
                     </div>
                   </div>
                 </div>
