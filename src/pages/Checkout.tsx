@@ -91,11 +91,11 @@ const Checkout = () => {
         },
       });
 
-      toast.success(`Paddle checkout geopend voor ${plan.name}!`);
+      toast.success(`Paddle checkout opened for ${plan.name}!`);
     } catch (error) {
       console.error("Paddle checkout error:", error);
       toast.error(
-        "Er ging iets mis met het openen van de checkout. Probeer het opnieuw.",
+        "Something went wrong opening the checkout. Please try again.",
       );
     } finally {
       setIsLoading(false);
