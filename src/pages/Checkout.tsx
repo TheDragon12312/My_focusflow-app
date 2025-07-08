@@ -177,10 +177,10 @@ const Checkout = () => {
               <CardHeader className="pb-4">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-2xl flex items-center space-x-3">
-                    <span>Plan Overzicht</span>
+                    <span>Plan Overview</span>
                     {plan.popular && (
                       <Badge className="bg-gradient-to-r from-orange-500 to-red-500 text-white">
-                        🔥 Populair
+                        🔥 Popular
                       </Badge>
                     )}
                   </CardTitle>
