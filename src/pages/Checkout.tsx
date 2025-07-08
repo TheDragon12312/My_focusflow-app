@@ -140,7 +140,7 @@ const Checkout = () => {
               <span className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
                 FocusFlow
               </span>
-              <p className="text-sm text-gray-500">Upgrade je productiviteit</p>
+              <p className="text-sm text-gray-500">Upgrade your productivity</p>
             </div>
           </div>
           <Button
