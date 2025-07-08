@@ -454,9 +454,9 @@ const Checkout = () => {
                 <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <span className="text-2xl">💬</span>
                 </div>
-                <h4 className="font-semibold mb-2">Hulp nodig?</h4>
+                <h4 className="font-semibold mb-2">Need help?</h4>
                 <p className="text-sm text-gray-600 mb-4">
-                  Ons vriendelijke support team staat 24/7 voor je klaar.
+                  Our friendly support team is available 24/7 for you.
                 </p>
                 <Button
                   variant="outline"
@@ -464,7 +464,7 @@ const Checkout = () => {
                   onClick={() => navigate("/contact")}
                   className="w-full"
                 >
-                  Contact opnemen
+                  Contact us
                 </Button>
               </CardContent>
             </Card>
@@ -476,11 +476,11 @@ const Checkout = () => {
                   <span className="text-2xl text-white">✓</span>
                 </div>
                 <h4 className="font-semibold text-green-800 mb-2">
-                  100% Geld Terug Garantie
+                  100% Money Back Guarantee
                 </h4>
                 <p className="text-sm text-green-700">
-                  Niet tevreden? Krijg binnen 30 dagen je geld volledig terug,
-                  geen vragen gesteld.
+                  Not satisfied? Get your money back within 30 days, no
+                  questions asked.
                 </p>
               </CardContent>
             </Card>
