@@ -376,7 +376,7 @@ const Checkout = () => {
           <div className="space-y-6">
             <Card className="sticky top-24 shadow-xl border-0 bg-gradient-to-br from-white to-indigo-50/50">
               <CardHeader className="text-center pb-4">
-                <CardTitle className="text-xl">Bestelsamenvatting</CardTitle>
+                <CardTitle className="text-xl">Order Summary</CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="space-y-4">
@@ -409,7 +409,7 @@ const Checkout = () => {
                     className="w-full py-6 text-lg font-semibold bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700"
                     onClick={() => navigate("/dashboard")}
                   >
-                    🚀 Gratis Starten
+                    ���� Gratis Starten
                   </Button>
                 ) : (
                   <Button
