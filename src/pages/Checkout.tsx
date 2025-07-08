@@ -318,9 +318,9 @@ const Checkout = () => {
                       <Shield className="h-5 w-5 text-blue-600" />
                     </div>
                     <div>
-                      <div className="font-medium">SSL Beveiligd</div>
+                      <div className="font-medium">SSL Secured</div>
                       <div className="text-sm text-gray-500">
-                        256-bit encryptie
+                        256-bit encryption
                       </div>
                     </div>
                   </div>
@@ -340,7 +340,7 @@ const Checkout = () => {
                       <CreditCard className="h-5 w-5 text-purple-600" />
                     </div>
                     <div>
-                      <div className="font-medium">Veilig Betalen</div>
+                      <div className="font-medium">Secure Payment</div>
                       <div className="text-sm text-gray-500">
                         Paddle powered
                       </div>
