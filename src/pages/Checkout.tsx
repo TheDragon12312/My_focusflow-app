@@ -264,10 +264,10 @@ const Checkout = () => {
                         <CardContent className="p-4">
                           <div className="flex items-center justify-between">
                             <div>
-                              <div className="font-medium">Jaarlijks</div>
+                              <div className="font-medium">Yearly</div>
                               <div className="text-sm text-gray-500">
                                 €{pricingService.getYearlyPrice(plan.price)}
-                                /jaar
+                                /year
                               </div>
                             </div>
                             <div
