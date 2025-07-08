@@ -70,7 +70,7 @@ const Contact = () => {
       icon: <Mail className="h-6 w-6 text-blue-600" />,
       title: "Email Support",
       description: "Stuur ons een bericht",
-      contact: "support@focusflow.nl",
+      contact: "focusflow@alwaysdata.net",
       availability: "24/7 - Response binnen 4 uur",
     },
     {
