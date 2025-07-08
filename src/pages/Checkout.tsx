@@ -287,7 +287,7 @@ const Checkout = () => {
                 {/* Enhanced Features */}
                 <div>
                   <h4 className="font-semibold mb-4 text-gray-900">
-                    Alles wat je krijgt:
+                    Everything you get:
                   </h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {plan.features.map((feature, index) => (
