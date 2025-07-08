@@ -113,7 +113,7 @@ const Checkout = () => {
     if (!plan || billingCycle !== "yearly" || plan.price === 0) return null;
 
     const savings = pricingService.getYearlySavings(plan.price);
-    return `Bespaar €${savings} per jaar`;
+    return `Save €${savings} per year`;
   };
 
   if (!plan) {
