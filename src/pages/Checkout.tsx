@@ -234,9 +234,9 @@ const Checkout = () => {
                         <CardContent className="p-4">
                           <div className="flex items-center justify-between">
                             <div>
-                              <div className="font-medium">Maandelijks</div>
+                              <div className="font-medium">Monthly</div>
                               <div className="text-sm text-gray-500">
-                                €{plan.price}/maand
+                                €{plan.price}/month
                               </div>
                             </div>
                             <div
