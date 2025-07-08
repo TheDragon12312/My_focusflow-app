@@ -1,16 +1,15 @@
-
 export interface AppNotification {
   id: string;
   title: string;
   message: string;
-  type: 'info' | 'success' | 'warning' | 'error';
+  type: "info" | "success" | "warning" | "error";
   timestamp: Date;
   read: boolean;
   actionable?: boolean;
   actions?: Array<{
     label: string;
     action: string;
-    style: 'primary' | 'secondary';
+    style: "primary" | "secondary";
   }>;
   psychology?: string;
   persistent?: boolean;
@@ -28,12 +27,12 @@ export interface NotificationSettings {
 interface NotificationOptions {
   title: string;
   message: string;
-  type: 'info' | 'success' | 'warning' | 'error';
+  type: "info" | "success" | "warning" | "error";
   actionable?: boolean;
   actions?: Array<{
     label: string;
     action: string;
-    style: 'primary' | 'secondary';
+    style: "primary" | "secondary";
   }>;
   psychology?: string;
   persistent?: boolean;
@@ -49,12 +48,19 @@ class NotificationService {
     breakReminders: true,
     achievementNotifications: true,
   };
+  private idCounter = 0;
+
+  private generateUniqueId(): string {
+    // Combine timestamp with counter and random number for uniqueness
+    this.idCounter += 1;
+    return `${Date.now()}-${this.idCounter}-${Math.random().toString(36).substr(2, 9)}`;
+  }
 
   showNotification(options: NotificationOptions) {
     if (!this.settings.enabled) return;
 
     const notification: AppNotification = {
-      id: Date.now().toString(),
+      id: this.generateUniqueId(),
       title: options.title,
       message: options.message,
       type: options.type,
@@ -69,13 +75,19 @@ class NotificationService {
     this.notifications.unshift(notification);
 
     // Console log for development
-    console.log(`[${options.type.toUpperCase()}] ${options.title}: ${options.message}`);
-    
+    console.log(
+      `[${options.type.toUpperCase()}] ${options.title}: ${options.message}`,
+    );
+
     // Browser notification if enabled and permission granted
-    if (this.settings.browserNotifications && 'Notification' in window && Notification.permission === 'granted') {
+    if (
+      this.settings.browserNotifications &&
+      "Notification" in window &&
+      Notification.permission === "granted"
+    ) {
       new Notification(options.title, {
         body: options.message,
-        icon: '/favicon.ico'
+        icon: "/favicon.ico",
       });
     }
   }
@@ -84,8 +96,8 @@ class NotificationService {
     this.showNotification({
       title,
       message,
-      type: 'success',
-      psychology: 'achievement',
+      type: "success",
+      psychology: "achievement",
     });
   }
 
@@ -102,14 +114,16 @@ class NotificationService {
   }
 
   markAsRead(notificationId: string) {
-    const notification = this.notifications.find(n => n.id === notificationId);
+    const notification = this.notifications.find(
+      (n) => n.id === notificationId,
+    );
     if (notification) {
       notification.read = true;
     }
   }
 
   markAllAsRead() {
-    this.notifications.forEach(n => n.read = true);
+    this.notifications.forEach((n) => (n.read = true));
   }
 
   clearAllNotifications() {
@@ -117,7 +131,7 @@ class NotificationService {
   }
 
   requestPermission() {
-    if ('Notification' in window && Notification.permission === 'default') {
+    if ("Notification" in window && Notification.permission === "default") {
       Notification.requestPermission();
     }
   }
@@ -132,6 +146,6 @@ declare global {
   }
 }
 
-if (typeof window !== 'undefined') {
+if (typeof window !== "undefined") {
   window.notificationService = notificationService;
 }
