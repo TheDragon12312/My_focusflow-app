@@ -220,7 +220,7 @@ const Checkout = () => {
                 {plan.price > 0 && (
                   <div>
                     <h4 className="font-semibold mb-4 text-gray-900">
-                      Kies je facturatiecyclus
+                      Choose your billing cycle
                     </h4>
                     <div className="grid grid-cols-2 gap-4">
                       <Card
