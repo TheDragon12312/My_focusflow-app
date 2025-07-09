@@ -101,7 +101,14 @@ export const hasReachedDailyFocusLimit = async (
     .lt("created_at", `${today}T23:59:59.999Z`);
 
   if (error) {
-    console.error("Error checking daily focus limit:", error);
+    console.error("Error checking daily focus limit:", {
+      message: error.message,
+      details: error.details,
+      hint: error.hint,
+      code: error.code,
+      status: error.status,
+      fullError: error,
+    });
     return false;
   }
 
