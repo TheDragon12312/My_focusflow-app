@@ -229,14 +229,7 @@ class GoogleOAuthService {
         .single();
 
       if (error) {
-        console.error("Error checking integrations:", {
-          message: error.message,
-          details: error.details,
-          hint: error.hint,
-          code: error.code,
-          status: error.status,
-          fullError: error,
-        });
+        logSupabaseError("Error checking integrations", error);
 
         // If no database record but have session token, that's still signed in
         if (
