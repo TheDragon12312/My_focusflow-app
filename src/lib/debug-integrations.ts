@@ -107,7 +107,11 @@ export class IntegrationsDebugger {
 
       console.log("=== DEBUG COMPLETE ===");
     } catch (error) {
-      console.error("Debug script error:", error);
+      console.error("Debug script error:", {
+        message: error instanceof Error ? error.message : error,
+        stack: error instanceof Error ? error.stack : undefined,
+        fullError: error,
+      });
     }
   }
 
