@@ -1,4 +1,15 @@
 import { supabase } from "@/integrations/supabase/client";
+import {
+  isFree,
+  isPro,
+  isTeam,
+  isAdmin,
+  hasAccessTo as utilHasAccessTo,
+  hasReachedDailyFocusLimit,
+  type UserPlan,
+  type User,
+} from "@/lib/subscription-utils";
+import { addAdmin as utilAddAdmin } from "@/lib/admin-utils";
 
 export type PlanType = "free" | "pro" | "team";
 export type SubscriptionStatus = "active" | "cancelled" | "past_due" | "trial";
