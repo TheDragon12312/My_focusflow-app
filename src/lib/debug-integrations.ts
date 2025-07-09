@@ -136,7 +136,11 @@ export class IntegrationsDebugger {
         console.log("Profile record:", { data: profile, error: profileError });
       }
     } catch (error) {
-      console.error("Profile debug error:", error);
+      console.error("Profile debug error:", {
+        message: error instanceof Error ? error.message : error,
+        stack: error instanceof Error ? error.stack : undefined,
+        fullError: error,
+      });
     }
   }
 }
