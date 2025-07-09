@@ -412,13 +412,24 @@ class SubscriptionService {
         .order("created_at", { ascending: false });
 
       if (error) {
-        console.error("Error fetching all users:", error);
+        console.error("Error fetching all users:", {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code,
+          status: error.status,
+          fullError: error,
+        });
         return [];
       }
 
       return profiles || [];
     } catch (error) {
-      console.error("Error getting all users:", error);
+      console.error("Error getting all users:", {
+        message: error instanceof Error ? error.message : error,
+        stack: error instanceof Error ? error.stack : undefined,
+        fullError: error,
+      });
       return [];
     }
   }
