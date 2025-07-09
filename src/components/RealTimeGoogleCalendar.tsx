@@ -57,33 +57,23 @@ const RealTimeGoogleCalendar = () => {
     }
   }, [isConnected, selectedDate]);
 
-  const checkConnectionStatus = async () => {
-    try {
-      const connected = await realGoogleIntegration.isConnectedAsync();
-      setIsConnected(connected);
-    } catch (error) {
-      console.error("Error checking connection status:", {
-        message: error instanceof Error ? error.message : error,
-        stack: error instanceof Error ? error.stack : undefined,
-        fullError: error,
-      });
-      setIsConnected(false);
+  const handleConnect = async () => {
+    const success = await connect();
+    if (!success && error) {
+      toast.error(`Verbinding gefaald: ${error}`);
     }
   };
 
-  const handleConnect = async () => {
-    setLoading(true);
-    try {
-      // Redirect to calendar integration page for OAuth flow
-      await realGoogleIntegration.connect();
-    } catch (error) {
-      console.error("Google Calendar connection error:", {
-        message: error instanceof Error ? error.message : error,
-        stack: error instanceof Error ? error.stack : undefined,
-        fullError: error,
-      });
-      toast.error("Er ging iets mis bij het verbinden");
-      setLoading(false);
+  const handleDisconnect = async () => {
+    await disconnect();
+    setEvents([]);
+  };
+
+  const handleRetry = async () => {
+    clearError();
+    const success = await retryConnection();
+    if (success) {
+      loadEvents();
     }
   };
 
