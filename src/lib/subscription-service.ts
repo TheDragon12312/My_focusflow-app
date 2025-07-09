@@ -262,13 +262,24 @@ class SubscriptionService {
         .eq("id", userId);
 
       if (error) {
-        console.error("Error updating user plan:", error);
+        console.error("Error updating user plan:", {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code,
+          status: error.status,
+          fullError: error,
+        });
         return false;
       }
 
       return true;
     } catch (error) {
-      console.error("Error updating user plan:", error);
+      console.error("Error updating user plan:", {
+        message: error instanceof Error ? error.message : error,
+        stack: error instanceof Error ? error.stack : undefined,
+        fullError: error,
+      });
       return false;
     }
   }
