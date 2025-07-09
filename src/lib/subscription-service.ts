@@ -261,62 +261,8 @@ class SubscriptionService {
 
   // Admin functions
   async addAdmin(email: string): Promise<boolean> {
-    try {
-      // First check if current user is admin
-      const currentProfile = await this.getUserProfile();
-      if (!this.isAdmin(currentProfile)) {
-        console.error("Only admins can add other admins");
-        return false;
-      }
-
-      // Find user by email
-      const { data: users, error: userError } =
-        await supabase.auth.admin.listUsers();
-      if (userError) {
-        console.error("Error listing users:", {
-          message: userError.message,
-          details: userError.details,
-          hint: userError.hint,
-          code: userError.code,
-          status: userError.status,
-          fullError: userError,
-        });
-        return false;
-      }
-
-      const targetUser = users.users.find((u) => u.email === email);
-      if (!targetUser) {
-        console.error("User not found with email:", email);
-        return false;
-      }
-
-      // Update user to be admin
-      const { error } = await supabase
-        .from("profiles")
-        .update({ is_admin: true })
-        .eq("id", targetUser.id);
-
-      if (error) {
-        console.error("Error making user admin:", {
-          message: error.message,
-          details: error.details,
-          hint: error.hint,
-          code: error.code,
-          status: error.status,
-          fullError: error,
-        });
-        return false;
-      }
-
-      return true;
-    } catch (error) {
-      console.error("Error adding admin:", {
-        message: error instanceof Error ? error.message : error,
-        stack: error instanceof Error ? error.stack : undefined,
-        fullError: error,
-      });
-      return false;
-    }
+    const result = await utilAddAdmin(email);
+    return result.success;
   }
 
   async removeAdmin(userId: string): Promise<boolean> {
