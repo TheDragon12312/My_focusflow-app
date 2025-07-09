@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { i18n, Language } from "@/lib/i18n";
+import { useTranslation } from "@/lib/i18n";
 import {
   Target,
   Brain,
@@ -28,17 +28,10 @@ import {
 
 const LandingPage = () => {
   const navigate = useNavigate();
+  const { t, language, setLanguage } = useTranslation();
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
   const [activeUsers, setActiveUsers] = useState(2847);
   const [completedSessions, setCompletedSessions] = useState(34521);
-  const [currentLanguage, setCurrentLanguage] = useState<Language>(
-    i18n.getCurrentLanguage(),
-  );
-
-  const setLanguage = (lang: Language) => {
-    i18n.setLanguage(lang);
-    setCurrentLanguage(lang);
-  };
 
   // Animate numbers for psychological effect
   useEffect(() => {
@@ -109,27 +102,27 @@ const LandingPage = () => {
                 href="#features"
                 className="text-gray-600 hover:text-blue-600 transition-all duration-200 font-medium hover:scale-105"
               >
-                Features
+                {t("landing.features")}
               </a>
               <a
                 href="#pricing"
                 className="text-gray-600 hover:text-blue-600 transition-all duration-200 font-medium hover:scale-105"
               >
-                Pricing
+                {t("landing.pricing")}
               </a>
               <Button
                 variant="ghost"
                 onClick={() => navigate("/about")}
                 className="font-medium hover:text-blue-600 hover:bg-blue-50"
               >
-                About
+                {t("landing.about")}
               </Button>
               <Button
                 variant="ghost"
                 onClick={() => navigate("/contact")}
                 className="font-medium hover:text-blue-600 hover:bg-blue-50"
               >
-                Contact
+                {t("landing.contact")}
               </Button>
 
               {/* Language Toggle Buttons */}
@@ -137,7 +130,7 @@ const LandingPage = () => {
                 <button
                   onClick={() => setLanguage("nl")}
                   className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all duration-200 ${
-                    currentLanguage === "nl"
+                    language === "nl"
                       ? "bg-white text-blue-600 shadow-sm"
                       : "text-gray-600 hover:text-gray-900"
                   }`}
@@ -147,7 +140,7 @@ const LandingPage = () => {
                 <button
                   onClick={() => setLanguage("en")}
                   className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all duration-200 ${
-                    currentLanguage === "en"
+                    language === "en"
                       ? "bg-white text-blue-600 shadow-sm"
                       : "text-gray-600 hover:text-gray-900"
                   }`}
@@ -163,13 +156,13 @@ const LandingPage = () => {
                 onClick={() => navigate("/auth")}
                 className="font-medium hover:text-blue-600 hover:bg-blue-50"
               >
-                Sign In
+                {t("landing.signIn")}
               </Button>
               <Button
                 onClick={() => navigate("/auth")}
                 className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-2 rounded-lg font-medium shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
               >
-                Get Started Free
+                {t("landing.getStartedFree")}
               </Button>
             </div>
           </div>
@@ -181,21 +174,19 @@ const LandingPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="text-center">
             <Badge className="bg-blue-100 text-blue-700 border-blue-200 mb-6 animate-bounce">
-              #1 Productivity App of 2024 🏆
+              {t("landing.topApp2024")}
             </Badge>
 
             <h1 className="text-5xl md:text-7xl font-bold text-gray-900 mb-6 leading-tight">
-              Transform Your
+              {t("landing.heroTitle")}
               <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent block">
-                Productivity Forever
+                {t("landing.heroTitleSpan")}
               </span>
             </h1>
 
             <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
-              Master deep focus with AI-powered coaching, smart distraction
-              blocking, and seamless team collaboration. Join{" "}
-              {activeUsers.toLocaleString()}+ professionals boosting their
-              productivity daily.
+              {t("landing.heroDescription")} {activeUsers.toLocaleString()}
+              {t("landing.heroDescriptionEnd")}
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6 mb-12">
@@ -204,7 +195,7 @@ const LandingPage = () => {
                 className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 text-lg font-semibold rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 w-full sm:w-auto"
               >
                 <Play className="h-5 w-5 mr-2" />
-                Start Your Free Trial
+                {t("landing.startFreeTrial")}
               </Button>
 
               <Button
@@ -213,7 +204,7 @@ const LandingPage = () => {
                 className="border-2 border-blue-600 text-blue-600 hover:bg-blue-50 px-8 py-4 text-lg font-semibold rounded-xl transition-all duration-300 hover:scale-105 w-full sm:w-auto"
               >
                 <Sparkles className="h-5 w-5 mr-2" />
-                Watch 2-Min Demo
+                {t("landing.watchDemo")}
               </Button>
             </div>
 
@@ -229,7 +220,8 @@ const LandingPage = () => {
                   ))}
                 </div>
                 <span className="font-medium">
-                  Join {activeUsers.toLocaleString()}+ users
+                  {t("landing.joinUsers")} {activeUsers.toLocaleString()}
+                  {t("landing.joinUsersEnd")}
                 </span>
               </div>
 
@@ -242,7 +234,7 @@ const LandingPage = () => {
                     />
                   ))}
                 </div>
-                <span className="font-medium">4.9/5 from 2,847+ reviews</span>
+                <span className="font-medium">{t("landing.rating")}</span>
               </div>
             </div>
           </div>
@@ -254,11 +246,10 @@ const LandingPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              Everything You Need to Stay Focused
+              {t("landing.featuresTitle")}
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Powerful tools designed to eliminate distractions and maximize
-              your productivity
+              {t("landing.featuresSubtitle")}
             </p>
           </div>
 
@@ -266,42 +257,36 @@ const LandingPage = () => {
             {[
               {
                 icon: <Brain className="h-8 w-8 text-purple-600" />,
-                title: "AI Productivity Coach",
-                description:
-                  "Get personalized insights and recommendations to optimize your focus sessions",
-                badge: "Premium",
+                title: t("landing.aiCoach"),
+                description: t("landing.aiCoachDesc"),
+                badge: t("landing.premium"),
               },
               {
                 icon: <Shield className="h-8 w-8 text-green-600" />,
-                title: "Smart Distraction Blocking",
-                description:
-                  "Automatically detect and block distracting websites and notifications",
-                badge: "Popular",
+                title: t("landing.smartBlocking"),
+                description: t("landing.smartBlockingDesc"),
+                badge: t("landing.popular"),
               },
               {
                 icon: <Users className="h-8 w-8 text-blue-600" />,
-                title: "Team Collaboration",
-                description:
-                  "Sync focus sessions with your team and track collective productivity",
-                badge: "New",
+                title: t("landing.teamCollaboration"),
+                description: t("landing.teamCollaborationDesc"),
+                badge: t("landing.new"),
               },
               {
                 icon: <BarChart3 className="h-8 w-8 text-orange-600" />,
-                title: "Advanced Analytics",
-                description:
-                  "Detailed insights into your productivity patterns and improvement areas",
+                title: t("landing.advancedAnalytics"),
+                description: t("landing.advancedAnalyticsDesc"),
               },
               {
                 icon: <Timer className="h-8 w-8 text-red-600" />,
-                title: "Pomodoro Timer",
-                description:
-                  "Customizable focus sessions with automatic break reminders",
+                title: t("landing.pomodoroTimer"),
+                description: t("landing.pomodoroTimerDesc"),
               },
               {
                 icon: <Target className="h-8 w-8 text-indigo-600" />,
-                title: "Goal Tracking",
-                description:
-                  "Set and track daily, weekly, and monthly productivity goals",
+                title: t("landing.goalTracking"),
+                description: t("landing.goalTrackingDesc"),
               },
             ].map((feature, index) => (
               <Card
@@ -317,9 +302,9 @@ const LandingPage = () => {
                     {feature.badge && (
                       <Badge
                         className={`
-                        ${feature.badge === "Premium" ? "bg-purple-100 text-purple-700" : ""}
-                        ${feature.badge === "Popular" ? "bg-green-100 text-green-700" : ""}
-                        ${feature.badge === "New" ? "bg-blue-100 text-blue-700" : ""}
+                        ${feature.badge === t("landing.premium") ? "bg-purple-100 text-purple-700" : ""}
+                        ${feature.badge === t("landing.popular") ? "bg-green-100 text-green-700" : ""}
+                        ${feature.badge === t("landing.new") ? "bg-blue-100 text-blue-700" : ""}
                       `}
                       >
                         {feature.badge}
@@ -341,11 +326,10 @@ const LandingPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              Loved by Professionals Worldwide
+              {t("landing.testimonialsTitle")}
             </h2>
             <p className="text-xl text-gray-600">
-              See how FocusFlow is transforming productivity for teams
-              everywhere
+              {t("landing.testimonialsSubtitle")}
             </p>
           </div>
 
@@ -383,59 +367,75 @@ const LandingPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              Simple, Transparent Pricing
+              {t("landing.pricingTitle")}
             </h2>
             <p className="text-xl text-gray-600">
-              Choose the plan that fits your productivity needs
+              {t("landing.pricingSubtitle")}
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             {[
               {
-                name: "Free",
+                name: t("landing.free"),
                 price: "$0",
-                period: "forever",
-                description: "Perfect for getting started",
+                period: t("landing.freeForever"),
+                description: t("landing.freeDesc"),
                 features: [
-                  "Up to 5 focus sessions per day",
-                  "Basic statistics",
-                  "Simple timer",
-                  "Email support",
+                  language === "nl"
+                    ? "Tot 5 focussessies per dag"
+                    : "Up to 5 focus sessions per day",
+                  language === "nl" ? "Basis statistieken" : "Basic statistics",
+                  language === "nl" ? "Eenvoudige timer" : "Simple timer",
+                  language === "nl" ? "E-mail ondersteuning" : "Email support",
                 ],
-                cta: "Get Started",
+                cta: t("landing.getStartedFree"),
                 popular: false,
               },
               {
-                name: "Pro",
+                name: t("landing.pro"),
                 price: "$9.99",
-                period: "per month",
-                description: "For serious professionals",
+                period: t("landing.proPrice"),
+                description: t("landing.proDesc"),
                 features: [
-                  "Unlimited focus sessions",
-                  "AI productivity coach",
-                  "Advanced analytics",
-                  "Calendar integration",
-                  "Distraction blocking",
-                  "Priority support",
+                  language === "nl"
+                    ? "Onbeperkte focussessies"
+                    : "Unlimited focus sessions",
+                  language === "nl"
+                    ? "AI productiviteitscoach"
+                    : "AI productivity coach",
+                  language === "nl"
+                    ? "Geavanceerde analytics"
+                    : "Advanced analytics",
+                  language === "nl"
+                    ? "Agenda integratie"
+                    : "Calendar integration",
+                  language === "nl"
+                    ? "Afleidingsblokkering"
+                    : "Distraction blocking",
+                  language === "nl"
+                    ? "Prioriteitsondersteuning"
+                    : "Priority support",
                 ],
-                cta: "Start Free Trial",
+                cta: t("landing.startFreeTrial"),
                 popular: true,
               },
               {
-                name: "Team",
+                name: t("landing.team"),
                 price: "$19.99",
-                period: "per month",
-                description: "For high-performing teams",
+                period: t("landing.proPrice"),
+                description: t("landing.teamDesc"),
                 features: [
-                  "Everything in Pro",
-                  "Team collaboration",
-                  "Shared analytics",
-                  "Admin dashboard",
-                  "SSO integration",
-                  "Dedicated support",
+                  language === "nl" ? "Alles van Pro" : "Everything in Pro",
+                  language === "nl" ? "Teamcollaboratie" : "Team collaboration",
+                  language === "nl" ? "Gedeelde analytics" : "Shared analytics",
+                  language === "nl" ? "Admin dashboard" : "Admin dashboard",
+                  language === "nl" ? "SSO integratie" : "SSO integration",
+                  language === "nl"
+                    ? "Toegewijde ondersteuning"
+                    : "Dedicated support",
                 ],
-                cta: "Contact Sales",
+                cta: t("landing.contactSales"),
                 popular: false,
               },
             ].map((plan, index) => (
@@ -448,7 +448,7 @@ const LandingPage = () => {
               >
                 {plan.popular && (
                   <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white px-4 py-1">
-                    Most Popular
+                    {t("landing.mostPopular")}
                   </Badge>
                 )}
                 <CardHeader className="text-center pb-4">
@@ -506,25 +506,24 @@ const LandingPage = () => {
       <section className="bg-gradient-to-r from-blue-600 to-purple-600 py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-4xl font-bold text-white mb-4">
-            Ready to Transform Your Productivity?
+            {t("landing.ctaTitle")}
           </h2>
           <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-            Join thousands of professionals who have already discovered the
-            power of focused work
+            {t("landing.ctaSubtitle")}
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6">
             <Button
               onClick={() => navigate("/auth")}
               className="bg-white text-blue-600 hover:bg-gray-100 px-8 py-4 text-lg font-semibold rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105"
             >
-              Start Your Free Trial
+              {t("landing.startFreeTrial")}
             </Button>
             <Button
               variant="outline"
               onClick={() => navigate("/contact")}
-              className="border-2 border-white text-white hover:bg-white hover:text-blue-600 px-8 py-4 text-lg font-semibold rounded-xl transition-all duration-300 hover:scale-105"
+              className="border-2 border-white bg-white text-black hover:bg-gray-100 hover:text-black px-8 py-4 text-lg font-semibold rounded-xl transition-all duration-300 hover:scale-105"
             >
-              Contact Sales
+              {t("landing.contactSales")}
             </Button>
           </div>
         </div>
@@ -542,24 +541,24 @@ const LandingPage = () => {
                 <span className="text-xl font-bold">FocusFlow</span>
               </div>
               <p className="text-gray-400 mb-4 max-w-md">
-                Transform your productivity with AI-powered focus sessions,
-                smart distraction blocking, and seamless team collaboration.
+                {t("landing.footerDescription")}
               </p>
               <div className="text-sm text-gray-500">
-                100% Secure & Private • {completedSessions.toLocaleString()}+
-                Sessions Completed
+                {t("landing.securePrivate")}{" "}
+                {completedSessions.toLocaleString()}
+                {t("landing.sessionsCompleted")}
               </div>
             </div>
 
             <div>
-              <h3 className="font-semibold mb-4">Product</h3>
+              <h3 className="font-semibold mb-4">{t("landing.product")}</h3>
               <ul className="space-y-2 text-gray-400">
                 <li>
                   <a
                     href="#features"
                     className="hover:text-white transition-colors"
                   >
-                    Features
+                    {t("landing.features")}
                   </a>
                 </li>
                 <li>
@@ -567,7 +566,7 @@ const LandingPage = () => {
                     href="#pricing"
                     className="hover:text-white transition-colors"
                   >
-                    Pricing
+                    {t("landing.pricing")}
                   </a>
                 </li>
                 <li>
@@ -575,7 +574,7 @@ const LandingPage = () => {
                     onClick={() => navigate("/demo")}
                     className="hover:text-white transition-colors"
                   >
-                    Demo
+                    {t("landing.demo")}
                   </button>
                 </li>
                 <li>
@@ -583,21 +582,21 @@ const LandingPage = () => {
                     onClick={() => navigate("/roadmap")}
                     className="hover:text-white transition-colors"
                   >
-                    Roadmap
+                    {t("landing.roadmap")}
                   </button>
                 </li>
               </ul>
             </div>
 
             <div>
-              <h3 className="font-semibold mb-4">Company</h3>
+              <h3 className="font-semibold mb-4">{t("landing.company")}</h3>
               <ul className="space-y-2 text-gray-400">
                 <li>
                   <button
                     onClick={() => navigate("/about")}
                     className="hover:text-white transition-colors"
                   >
-                    About
+                    {t("landing.about")}
                   </button>
                 </li>
                 <li>
@@ -605,7 +604,7 @@ const LandingPage = () => {
                     onClick={() => navigate("/contact")}
                     className="hover:text-white transition-colors"
                   >
-                    Contact
+                    {t("landing.contact")}
                   </button>
                 </li>
                 <li>
@@ -613,7 +612,7 @@ const LandingPage = () => {
                     onClick={() => navigate("/help")}
                     className="hover:text-white transition-colors"
                   >
-                    Help
+                    {t("landing.help")}
                   </button>
                 </li>
                 <li>
@@ -621,7 +620,15 @@ const LandingPage = () => {
                     onClick={() => navigate("/community")}
                     className="hover:text-white transition-colors"
                   >
-                    Community
+                    {t("landing.community")}
+                  </button>
+                </li>
+                <li>
+                  <button
+                    onClick={() => navigate("/terms")}
+                    className="hover:text-white transition-colors"
+                  >
+                    {t("landing.termsOfConditions")}
                   </button>
                 </li>
               </ul>
@@ -629,7 +636,7 @@ const LandingPage = () => {
           </div>
 
           <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>&copy; 2024 FocusFlow. All rights reserved.</p>
+            <p>{t("landing.copyright")}</p>
           </div>
         </div>
       </footer>

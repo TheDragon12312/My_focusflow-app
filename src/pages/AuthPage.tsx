@@ -15,13 +15,15 @@ import { useNavigate } from "react-router-dom";
 import { Target, Mail, Lock, User, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { createClient } from "@supabase/supabase-js";
+import { useTranslation } from "@/lib/i18n";
 
 const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_ANON_KEY
+  import.meta.env.VITE_SUPABASE_ANON_KEY,
 );
 
 const AuthPage = () => {
+  const { t } = useTranslation();
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
     fullName: "",
@@ -60,12 +62,12 @@ const AuthPage = () => {
     e.preventDefault();
 
     if (!isLogin && formData.password !== formData.confirmPassword) {
-      toast.error("Wachtwoorden komen niet overeen");
+      toast.error(t("auth.passwordMismatch"));
       return;
     }
 
     if (!isLogin && formData.password.length < 6) {
-      toast.error("Wachtwoord moet minimaal 6 karakters lang zijn");
+      toast.error(t("auth.passwordTooShort"));
       return;
     }
 
@@ -80,7 +82,7 @@ const AuthPage = () => {
     } catch (error) {
       // Error is already handled in AuthContext
       console.error("Auth error:", error);
-      toast.error(error.message || "Er is iets misgegaan");
+      toast.error(error.message || t("auth.somethingWentWrong"));
     } finally {
       setIsSubmitting(false);
     }
@@ -94,13 +96,13 @@ const AuthPage = () => {
   };
 
   const handleGitHubLogin = async () => {
- const { error } = await supabase.auth.signInWithOAuth({
-    provider: "github",
-  });
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "github",
+    });
 
-  if (error) {
-    throw error;
-  }
+    if (error) {
+      throw error;
+    }
   };
 
   if (isLoading) {
@@ -108,7 +110,7 @@ const AuthPage = () => {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center">
         <div className="text-center">
           <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Laden...</p>
+          <p className="text-gray-600">{t("auth.loading")}</p>
         </div>
       </div>
     );
@@ -124,7 +126,7 @@ const AuthPage = () => {
           className="mb-6 text-gray-600 hover:text-blue-600"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Terug naar home
+          {t("auth.backToHome")}
         </Button>
 
         <Card className="border-0 shadow-xl bg-white/90 backdrop-blur-sm">
@@ -133,12 +135,10 @@ const AuthPage = () => {
               <Target className="h-8 w-8 text-white" />
             </div>
             <CardTitle className="text-2xl font-bold text-gray-900">
-              {isLogin ? "Welkom terug" : "Account aanmaken"}
+              {isLogin ? t("auth.welcomeBack") : t("auth.createAccount")}
             </CardTitle>
             <CardDescription className="text-gray-600">
-              {isLogin
-                ? "Log in op je FocusFlow account"
-                : "Maak je gratis FocusFlow account aan"}
+              {isLogin ? t("auth.loginToAccount") : t("auth.createFreeAccount")}
             </CardDescription>
           </CardHeader>
 
@@ -147,7 +147,7 @@ const AuthPage = () => {
               {!isLogin && (
                 <div className="space-y-2">
                   <Label htmlFor="fullName" className="text-gray-700">
-                    Volledige naam
+                    {t("auth.fullName")}
                   </Label>
                   <div className="relative">
                     <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -155,7 +155,7 @@ const AuthPage = () => {
                       id="fullName"
                       name="fullName"
                       type="text"
-                      placeholder="Je volledige naam"
+                      placeholder={t("auth.fullNamePlaceholder")}
                       value={formData.fullName}
                       onChange={handleChange}
                       required={!isLogin}
@@ -167,7 +167,7 @@ const AuthPage = () => {
 
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-gray-700">
-                  E-mailadres
+                  {t("auth.emailAddress")}
                 </Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -175,7 +175,7 @@ const AuthPage = () => {
                     id="email"
                     name="email"
                     type="email"
-                    placeholder="je@email.com"
+                    placeholder={t("auth.emailPlaceholder")}
                     value={formData.email}
                     onChange={handleChange}
                     required
@@ -186,7 +186,7 @@ const AuthPage = () => {
 
               <div className="space-y-2">
                 <Label htmlFor="password" className="text-gray-700">
-                  Wachtwoord
+                  {t("auth.password")}
                 </Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -194,7 +194,7 @@ const AuthPage = () => {
                     id="password"
                     name="password"
                     type="password"
-                    placeholder="Je wachtwoord"
+                    placeholder={t("auth.passwordPlaceholder")}
                     value={formData.password}
                     onChange={handleChange}
                     required
@@ -206,7 +206,7 @@ const AuthPage = () => {
               {!isLogin && (
                 <div className="space-y-2">
                   <Label htmlFor="confirmPassword" className="text-gray-700">
-                    Bevestig wachtwoord
+                    {t("auth.confirmPassword")}
                   </Label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -214,7 +214,7 @@ const AuthPage = () => {
                       id="confirmPassword"
                       name="confirmPassword"
                       type="password"
-                      placeholder="Bevestig je wachtwoord"
+                      placeholder={t("auth.confirmPasswordPlaceholder")}
                       value={formData.confirmPassword}
                       onChange={handleChange}
                       required={!isLogin}
@@ -232,12 +232,12 @@ const AuthPage = () => {
                 {isSubmitting ? (
                   <div className="flex items-center">
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                    {isLogin ? "Inloggen..." : "Account aanmaken..."}
+                    {isLogin ? t("auth.loggingIn") : t("auth.creatingAccount")}
                   </div>
                 ) : isLogin ? (
-                  "Inloggen"
+                  t("auth.login")
                 ) : (
-                  "Account aanmaken"
+                  t("auth.createAccount")
                 )}
               </Button>
             </form>
@@ -247,7 +247,9 @@ const AuthPage = () => {
                 <Separator className="w-full" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-white px-2 text-gray-500">Of</span>
+                <span className="bg-white px-2 text-gray-500">
+                  {t("auth.or")}
+                </span>
               </div>
             </div>
 
@@ -267,7 +269,7 @@ const AuthPage = () => {
                 >
                   <path d="M11.4 24H0V12.6h11.4V24zM24 24H12.6V12.6H24V24zM11.4 11.4H0V0h11.4v11.4zM24 11.4H12.6V0H24v11.4z" />
                 </svg>
-                Inloggen met Microsoft
+                {t("auth.loginWithMicrosoft")}
               </Button>
 
               <Button
@@ -288,7 +290,7 @@ const AuthPage = () => {
                     clipRule="evenodd"
                   />
                 </svg>
-                Inloggen met GitHub
+                {t("auth.loginWithGitHub")}
               </Button>
             </div>
 
@@ -298,9 +300,7 @@ const AuthPage = () => {
                 onClick={() => setIsLogin(!isLogin)}
                 className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
               >
-                {isLogin
-                  ? "Nog geen account? Registreren"
-                  : "Al een account? Inloggen"}
+                {isLogin ? t("auth.noAccount") : t("auth.hasAccount")}
               </Button>
             </div>
           </CardContent>

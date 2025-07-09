@@ -1,9 +1,8 @@
+import { supabase } from "@/integrations/supabase/client";
+
 // Google OAuth Configuration
 export const GOOGLE_CONFIG = {
-  clientId: import.meta.env.VITE_GOOGLE_CLIENT_ID || "",
-  clientSecret: import.meta.env.VITE_GOOGLE_CLIENT_SECRET || "",
-  redirectUri: `${window.location.origin}/auth/google/callback`,
-  scope: "https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/gmail.readonly openid profile email",
+  scope: "https://www.googleapis.com/auth/calendar.readonly",
 };
 
 export interface GoogleProfile {
@@ -25,127 +24,263 @@ export interface GoogleTokens {
 }
 
 class GoogleOAuthService {
-  private readonly STORAGE_KEY = "google_oauth_tokens";
-  private readonly CONNECTION_KEY = "google_connected";
-
-  async signIn(): Promise<{ profile: GoogleProfile; tokens: GoogleTokens } | null> {
+  async signIn(): Promise<{
+    profile: GoogleProfile;
+    tokens: GoogleTokens;
+  } | null> {
     try {
-      const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${
-        GOOGLE_CONFIG.clientId
-      }&response_type=code&redirect_uri=${encodeURIComponent(
-        GOOGLE_CONFIG.redirectUri
-      )}&scope=${encodeURIComponent(GOOGLE_CONFIG.scope)}&access_type=offline&prompt=consent`;
-
-      const popup = window.open(authUrl, "google-oauth", "width=500,height=600");
-      if (!popup) {
-        throw new Error("Popup blocked. Please allow popups for Google login.");
-      }
-
-      return new Promise((resolve, reject) => {
-        const interval = setInterval(async () => {
-          try {
-            if (popup.closed) {
-              clearInterval(interval);
-              const tokens = this.getStoredTokens();
-              if (tokens) {
-                const profile = await this.getUserProfile(tokens.access_token);
-                resolve({ profile, tokens });
-              } else {
-                reject(new Error("Authentication failed"));
-              }
-            }
-          } catch (error) {
-            clearInterval(interval);
-            reject(error);
-          }
-        }, 1000);
-      });
-    } catch (error) {
-      console.error("Google OAuth error:", error);
+      // Redirect to calendar integration page for proper OAuth flow
+      window.location.href = "/calendar";
       return null;
+    } catch (error) {
+      console.error("Google OAuth error:", {
+        message: error instanceof Error ? error.message : error,
+        stack: error instanceof Error ? error.stack : undefined,
+        fullError: error,
+      });
+      throw new Error("Authentication failed");
     }
   }
 
   async signOut(): Promise<void> {
     try {
-      const tokens = this.getStoredTokens();
-      if (tokens?.access_token) {
-        await fetch(`https://oauth2.googleapis.com/revoke?token=${tokens.access_token}`, {
-          method: "POST",
-        });
-      }
-      localStorage.removeItem(this.STORAGE_KEY);
-      localStorage.removeItem(this.CONNECTION_KEY);
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) return;
+
+      // Remove Google integration from database
+      await supabase
+        .from("integrations")
+        .delete()
+        .eq("user_id", user.id)
+        .eq("integration_type", "google_calendar");
     } catch (error) {
-      console.error("Google sign out error:", error);
+      console.error("Google sign out error:", {
+        message: error instanceof Error ? error.message : error,
+        stack: error instanceof Error ? error.stack : undefined,
+        fullError: error,
+      });
     }
   }
 
   async getValidAccessToken(): Promise<string | null> {
-    const tokens = this.getStoredTokens();
-    if (!tokens) return null;
-
-    if (this.isTokenExpired(tokens)) {
-      const refreshedTokens = await this.refreshTokens(tokens.refresh_token);
-      if (refreshedTokens) {
-        this.storeTokens(refreshedTokens);
-        return refreshedTokens.access_token;
+    try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) {
+        console.log("No authenticated user found");
+        return null;
       }
+
+      console.log("Getting access token for user:", user.id);
+
+      // First, try to get token from current session (if user just logged in with Google)
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (session?.provider_token && session.provider === "google") {
+        console.log("Found Google provider token in session");
+        return session.provider_token;
+      }
+
+      // Get Google integration from database
+      const { data: integrations, error } = await supabase
+        .from("integrations")
+        .select("access_token, refresh_token, expires_at")
+        .eq("user_id", user.id)
+        .eq("integration_type", "google_calendar")
+        .eq("is_active", true)
+        .single();
+
+      if (error) {
+        console.error("Error fetching integrations:", {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code,
+          status: error.status,
+          fullError: error,
+        });
+
+        // If no records found (PGRST116), but we have session provider token, that's OK
+        if (
+          error.code === "PGRST116" &&
+          session?.provider_token &&
+          session.provider === "google"
+        ) {
+          console.log(
+            "No database record but have session token - using session token",
+          );
+          return session.provider_token;
+        }
+
+        // If the error is about RLS or permissions, try without .single() to debug
+        if (
+          error.message?.includes("406") ||
+          error.message?.includes("Not Acceptable")
+        ) {
+          console.log("Trying query without .single() to debug...");
+          const { data: allIntegrations, error: listError } = await supabase
+            .from("integrations")
+            .select("access_token, refresh_token, expires_at")
+            .eq("user_id", user.id)
+            .eq("integration_type", "google_calendar")
+            .eq("is_active", true);
+
+          console.log("All integrations query result:", {
+            data: allIntegrations,
+            error: listError
+              ? {
+                  message: listError.message,
+                  details: listError.details,
+                  hint: listError.hint,
+                  code: listError.code,
+                  status: listError.status,
+                }
+              : null,
+          });
+          return null;
+        }
+        return null;
+      }
+
+      if (!integrations?.access_token) {
+        console.log("No access token found in integrations");
+        // Fallback to session token if available
+        if (session?.provider_token && session.provider === "google") {
+          console.log("Using session provider token as fallback");
+          return session.provider_token;
+        }
+        return null;
+      }
+
+      // Check if token is expired and needs refresh
+      if (
+        integrations.expires_at &&
+        new Date(integrations.expires_at) <= new Date(Date.now() + 60000)
+      ) {
+        // Token will expire in less than 1 minute, try to refresh
+        if (integrations.refresh_token) {
+          const refreshedToken = await this.refreshAccessToken(
+            integrations.refresh_token,
+          );
+          if (refreshedToken) {
+            // Update the database with new token
+            await supabase
+              .from("integrations")
+              .update({
+                access_token: refreshedToken.access_token,
+                expires_at: new Date(
+                  Date.now() + refreshedToken.expires_in * 1000,
+                ).toISOString(),
+              })
+              .eq("user_id", user.id)
+              .eq("integration_type", "google_calendar");
+
+            return refreshedToken.access_token;
+          }
+        }
+        return null;
+      }
+
+      return integrations.access_token;
+    } catch (error) {
+      console.error("Error getting access token:", {
+        message: error instanceof Error ? error.message : error,
+        stack: error instanceof Error ? error.stack : undefined,
+        fullError: error,
+      });
       return null;
     }
-
-    return tokens.access_token;
   }
 
-  isSignedIn(): boolean {
-    const connected = localStorage.getItem(this.CONNECTION_KEY) === "true";
-    const tokens = this.getStoredTokens();
-    return connected && !!tokens && !this.isTokenExpired(tokens);
+  async isSignedIn(): Promise<boolean> {
+    try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) {
+        console.log("No user for isSignedIn check");
+        return false;
+      }
+
+      console.log("Checking if user is signed in:", user.id);
+
+      // First check session for provider token
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (session?.provider_token && session.provider === "google") {
+        console.log(
+          "Found Google provider token in session - user is signed in",
+        );
+        return true;
+      }
+
+      const { data: integrations, error } = await supabase
+        .from("integrations")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("integration_type", "google_calendar")
+        .eq("is_active", true)
+        .single();
+
+      if (error) {
+        console.error("Error checking integrations:", {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code,
+          status: error.status,
+          fullError: error,
+        });
+
+        // If no database record but have session token, that's still signed in
+        if (
+          error.code === "PGRST116" &&
+          session?.provider_token &&
+          session.provider === "google"
+        ) {
+          console.log(
+            "No database record but have session token - user is signed in",
+          );
+          return true;
+        }
+
+        return false;
+      }
+
+      const isSignedIn = !!integrations;
+      console.log("Is signed in:", isSignedIn);
+      return isSignedIn;
+    } catch (error) {
+      console.error("Exception in isSignedIn:", {
+        message: error instanceof Error ? error.message : error,
+        stack: error instanceof Error ? error.stack : undefined,
+        fullError: error,
+      });
+      return false;
+    }
   }
 
   isConnected(): boolean {
-    return this.isSignedIn();
-  }
-
-  private async getUserProfile(accessToken: string): Promise<GoogleProfile> {
-    const response = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error("Failed to get user profile");
-    }
-
-    return response.json();
-  }
-
-  private storeTokens(tokens: GoogleTokens): void {
-    const tokenData = {
-      ...tokens,
-      expires_at: tokens.expires_at || Date.now() + tokens.expires_in * 1000,
-    };
-    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(tokenData));
-    localStorage.setItem(this.CONNECTION_KEY, "true");
-  }
-
-  private getStoredTokens(): (GoogleTokens & { expires_at: number }) | null {
+    // This is a synchronous check for UI purposes
+    // We'll do a simple check but components should use isSignedIn() for accuracy
     try {
-      const stored = localStorage.getItem(this.STORAGE_KEY);
-      return stored ? JSON.parse(stored) : null;
+      const session = localStorage.getItem(
+        "sb-cwgnlsrqnyugloobrsxz-auth-token",
+      );
+      return !!session;
     } catch {
-      return null;
+      return false;
     }
   }
 
-  private isTokenExpired(tokens: { expires_at: number }): boolean {
-    return Date.now() >= tokens.expires_at - 60000; // 1 minute buffer
-  }
-
-  private async refreshTokens(refreshToken?: string): Promise<GoogleTokens | null> {
-    if (!refreshToken) return null;
-
+  private async refreshAccessToken(
+    refreshToken: string,
+  ): Promise<{ access_token: string; expires_in: number } | null> {
     try {
       const response = await fetch("https://oauth2.googleapis.com/token", {
         method: "POST",
@@ -153,22 +288,50 @@ class GoogleOAuthService {
           "Content-Type": "application/x-www-form-urlencoded",
         },
         body: new URLSearchParams({
-          client_id: GOOGLE_CONFIG.clientId,
-          client_secret: GOOGLE_CONFIG.clientSecret,
+          client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID || "",
+          client_secret: import.meta.env.VITE_GOOGLE_CLIENT_SECRET || "",
           refresh_token: refreshToken,
           grant_type: "refresh_token",
         }),
       });
 
       if (!response.ok) {
-        throw new Error("Failed to refresh tokens");
+        throw new Error("Failed to refresh token");
       }
 
-      const newTokens = await response.json();
-      newTokens.expires_at = Date.now() + newTokens.expires_in * 1000;
-      return newTokens;
+      return await response.json();
     } catch (error) {
-      console.error("Token refresh error:", error);
+      console.error("Token refresh error:", {
+        message: error instanceof Error ? error.message : error,
+        stack: error instanceof Error ? error.stack : undefined,
+        fullError: error,
+      });
+      return null;
+    }
+  }
+
+  async getUserProfile(): Promise<GoogleProfile | null> {
+    try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) return null;
+
+      return {
+        id: user.id,
+        email: user.email || "",
+        name: user.user_metadata?.full_name || user.email || "",
+        picture: user.user_metadata?.avatar_url,
+        given_name: user.user_metadata?.given_name,
+        family_name: user.user_metadata?.family_name,
+      };
+    } catch (error) {
+      console.error("Error getting user profile:", {
+        message: error instanceof Error ? error.message : error,
+        stack: error instanceof Error ? error.stack : undefined,
+        fullError: error,
+      });
       return null;
     }
   }

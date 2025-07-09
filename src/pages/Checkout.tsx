@@ -66,7 +66,7 @@ const Checkout = () => {
     }
 
     if (!plan) {
-      toast.error("Geen plan geselecteerd");
+      toast.error("No plan selected");
       return;
     }
 
@@ -74,14 +74,15 @@ const Checkout = () => {
 
     try {
       // Use Paddle for real subscription payments
-      const priceId = billingCycle === "yearly" 
-        ? `${selectedPlan}_yearly` 
-        : `${selectedPlan}_monthly`;
+      const priceId =
+        billingCycle === "yearly"
+          ? `${selectedPlan}_yearly`
+          : `${selectedPlan}_monthly`;
 
       await paddleService.openCheckout({
         items: [{ priceId }],
-        customer: { 
-          email: user.email 
+        customer: {
+          email: user.email,
         },
         customData: {
           planId: selectedPlan,
@@ -90,11 +91,11 @@ const Checkout = () => {
         },
       });
 
-      toast.success(`Paddle checkout geopend voor ${plan.name}!`);
+      toast.success(`Paddle checkout opened for ${plan.name}!`);
     } catch (error) {
       console.error("Paddle checkout error:", error);
       toast.error(
-        "Er ging iets mis met het openen van de checkout. Probeer het opnieuw.",
+        "Something went wrong opening the checkout. Please try again.",
       );
     } finally {
       setIsLoading(false);
@@ -112,7 +113,7 @@ const Checkout = () => {
     if (!plan || billingCycle !== "yearly" || plan.price === 0) return null;
 
     const savings = pricingService.getYearlySavings(plan.price);
-    return `Bespaar €${savings} per jaar`;
+    return `Save €${savings} per year`;
   };
 
   if (!plan) {
@@ -120,7 +121,7 @@ const Checkout = () => {
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-purple-50">
         <div className="text-center">
           <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-indigo-600" />
-          <p className="text-gray-600">Plan details laden...</p>
+          <p className="text-gray-600">Loading plan details...</p>
         </div>
       </div>
     );
@@ -139,16 +140,16 @@ const Checkout = () => {
               <span className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
                 FocusFlow
               </span>
-              <p className="text-sm text-gray-500">Upgrade je productiviteit</p>
+              <p className="text-sm text-gray-500">Upgrade your productivity</p>
             </div>
           </div>
           <Button
             variant="ghost"
-            onClick={() => navigate("/pricing")}
+            onClick={() => navigate("/")}
             className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
           >
             <ArrowLeft className="h-4 w-4" />
-            <span>Terug naar prijzen</span>
+            <span>Back to Home</span>
           </Button>
         </div>
       </div>
@@ -158,13 +159,13 @@ const Checkout = () => {
         <div className="text-center mb-12">
           <div className="inline-flex items-center space-x-2 px-4 py-2 bg-indigo-100 rounded-full text-indigo-800 text-sm font-medium mb-4">
             <Sparkles className="h-4 w-4" />
-            <span>Laatste stap</span>
+            <span>Final step</span>
           </div>
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Welkom bij {plan.name}
+            Welcome to {plan.name}
           </h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Start je productiviteitsreis met de beste tools en AI-ondersteuning
+            Start your productivity journey with the best tools and AI support
           </p>
         </div>
 
@@ -176,10 +177,10 @@ const Checkout = () => {
               <CardHeader className="pb-4">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-2xl flex items-center space-x-3">
-                    <span>Plan Overzicht</span>
+                    <span>Plan Overview</span>
                     {plan.popular && (
                       <Badge className="bg-gradient-to-r from-orange-500 to-red-500 text-white">
-                        🔥 Populair
+                        🔥 Popular
                       </Badge>
                     )}
                   </CardTitle>
@@ -219,7 +220,7 @@ const Checkout = () => {
                 {plan.price > 0 && (
                   <div>
                     <h4 className="font-semibold mb-4 text-gray-900">
-                      Kies je facturatiecyclus
+                      Choose your billing cycle
                     </h4>
                     <div className="grid grid-cols-2 gap-4">
                       <Card
@@ -233,9 +234,9 @@ const Checkout = () => {
                         <CardContent className="p-4">
                           <div className="flex items-center justify-between">
                             <div>
-                              <div className="font-medium">Maandelijks</div>
+                              <div className="font-medium">Monthly</div>
                               <div className="text-sm text-gray-500">
-                                €{plan.price}/maand
+                                €{plan.price}/month
                               </div>
                             </div>
                             <div
@@ -263,10 +264,10 @@ const Checkout = () => {
                         <CardContent className="p-4">
                           <div className="flex items-center justify-between">
                             <div>
-                              <div className="font-medium">Jaarlijks</div>
+                              <div className="font-medium">Yearly</div>
                               <div className="text-sm text-gray-500">
                                 €{pricingService.getYearlyPrice(plan.price)}
-                                /jaar
+                                /year
                               </div>
                             </div>
                             <div
@@ -286,7 +287,7 @@ const Checkout = () => {
                 {/* Enhanced Features */}
                 <div>
                   <h4 className="font-semibold mb-4 text-gray-900">
-                    Alles wat je krijgt:
+                    Everything you get:
                   </h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {plan.features.map((feature, index) => (
@@ -309,7 +310,7 @@ const Checkout = () => {
             <Card className="shadow-lg border-0">
               <CardContent className="p-6">
                 <h4 className="font-semibold mb-4 text-gray-900">
-                  🔒 Veilig & Betrouwbaar
+                  🔒 Safe & Reliable
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div className="flex items-center space-x-3">
@@ -317,9 +318,9 @@ const Checkout = () => {
                       <Shield className="h-5 w-5 text-blue-600" />
                     </div>
                     <div>
-                      <div className="font-medium">SSL Beveiligd</div>
+                      <div className="font-medium">SSL Secured</div>
                       <div className="text-sm text-gray-500">
-                        256-bit encryptie
+                        256-bit encryption
                       </div>
                     </div>
                   </div>
@@ -339,7 +340,7 @@ const Checkout = () => {
                       <CreditCard className="h-5 w-5 text-purple-600" />
                     </div>
                     <div>
-                      <div className="font-medium">Veilig Betalen</div>
+                      <div className="font-medium">Secure Payment</div>
                       <div className="text-sm text-gray-500">
                         Paddle powered
                       </div>
@@ -358,12 +359,12 @@ const Checkout = () => {
                   </div>
                   <div>
                     <p className="text-gray-700 italic mb-3">
-                      "FocusFlow heeft mijn productiviteit met 40% verhoogd. De
-                      AI coach is ongelooflijk nuttig!"
+                      "FocusFlow increased my productivity by 40%. The AI coach
+                      is incredibly useful!"
                     </p>
                     <div className="font-medium">Sarah van der Berg</div>
                     <div className="text-sm text-gray-500">
-                      Product Manager bij TechCorp
+                      Product Manager at TechCorp
                     </div>
                   </div>
                 </div>
@@ -375,7 +376,7 @@ const Checkout = () => {
           <div className="space-y-6">
             <Card className="sticky top-24 shadow-xl border-0 bg-gradient-to-br from-white to-indigo-50/50">
               <CardHeader className="text-center pb-4">
-                <CardTitle className="text-xl">Bestelsamenvatting</CardTitle>
+                <CardTitle className="text-xl">Order Summary</CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="space-y-4">
@@ -386,7 +387,7 @@ const Checkout = () => {
 
                   {billingCycle === "yearly" && plan.price > 0 && (
                     <div className="flex justify-between text-green-600">
-                      <span>💰 Jaarlijkse korting</span>
+                      <span>💰 Annual discount</span>
                       <span className="font-medium">
                         -€{pricingService.getYearlySavings(plan.price)}
                       </span>
@@ -396,7 +397,7 @@ const Checkout = () => {
                   <Separator />
 
                   <div className="flex justify-between items-center text-lg font-bold">
-                    <span>Totaal</span>
+                    <span>Total</span>
                     <span className="text-2xl bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
                       {getPriceDisplay()}
                     </span>
@@ -408,7 +409,7 @@ const Checkout = () => {
                     className="w-full py-6 text-lg font-semibold bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700"
                     onClick={() => navigate("/dashboard")}
                   >
-                    🚀 Gratis Starten
+                    🚀 Start Free
                   </Button>
                 ) : (
                   <Button
@@ -419,12 +420,12 @@ const Checkout = () => {
                     {isLoading ? (
                       <>
                         <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                        Paddle laden...
+                        Loading Paddle...
                       </>
                     ) : (
                       <>
                         <CreditCard className="h-5 w-5 mr-2" />
-                        Betaal met Paddle
+                        Pay with Paddle
                       </>
                     )}
                   </Button>
@@ -433,15 +434,15 @@ const Checkout = () => {
                 <div className="space-y-3 text-center">
                   <div className="flex items-center justify-center space-x-2 text-sm text-gray-500">
                     <Check className="h-4 w-4 text-green-500" />
-                    <span>30 dagen geld-terug-garantie</span>
+                    <span>30-day money-back guarantee</span>
                   </div>
                   <div className="flex items-center justify-center space-x-2 text-sm text-gray-500">
                     <Check className="h-4 w-4 text-green-500" />
-                    <span>Cancel op elk moment</span>
+                    <span>Cancel anytime</span>
                   </div>
                   <div className="flex items-center justify-center space-x-2 text-sm text-gray-500">
                     <Check className="h-4 w-4 text-green-500" />
-                    <span>Directe toegang</span>
+                    <span>Instant access</span>
                   </div>
                 </div>
               </CardContent>
@@ -453,9 +454,9 @@ const Checkout = () => {
                 <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <span className="text-2xl">💬</span>
                 </div>
-                <h4 className="font-semibold mb-2">Hulp nodig?</h4>
+                <h4 className="font-semibold mb-2">Need help?</h4>
                 <p className="text-sm text-gray-600 mb-4">
-                  Ons vriendelijke support team staat 24/7 voor je klaar.
+                  Our friendly support team is available 24/7 for you.
                 </p>
                 <Button
                   variant="outline"
@@ -463,7 +464,7 @@ const Checkout = () => {
                   onClick={() => navigate("/contact")}
                   className="w-full"
                 >
-                  Contact opnemen
+                  Contact us
                 </Button>
               </CardContent>
             </Card>
@@ -475,11 +476,11 @@ const Checkout = () => {
                   <span className="text-2xl text-white">✓</span>
                 </div>
                 <h4 className="font-semibold text-green-800 mb-2">
-                  100% Geld Terug Garantie
+                  100% Money Back Guarantee
                 </h4>
                 <p className="text-sm text-green-700">
-                  Niet tevreden? Krijg binnen 30 dagen je geld volledig terug,
-                  geen vragen gesteld.
+                  Not satisfied? Get your money back within 30 days, no
+                  questions asked.
                 </p>
               </CardContent>
             </Card>

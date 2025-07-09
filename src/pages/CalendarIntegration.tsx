@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -18,6 +17,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { googleCalendarImport } from "@/lib/google-calendar-import";
 import RealTimeGoogleCalendar from "@/components/RealTimeGoogleCalendar";
 
 interface GoogleCalendarEvent {
@@ -43,18 +43,87 @@ const CalendarIntegration = () => {
   const { user } = useAuth();
 
   const [googleEvents, setGoogleEvents] = useState<GoogleCalendarEvent[]>([]);
-  const [microsoftEvents, setMicrosoftEvents] = useState<MicrosoftCalendarEvent[]>([]);
+  const [microsoftEvents, setMicrosoftEvents] = useState<
+    MicrosoftCalendarEvent[]
+  >([]);
   const [isGoogleConnected, setIsGoogleConnected] = useState(false);
   const [isMicrosoftConnected, setIsMicrosoftConnected] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [importing, setImporting] = useState(false);
 
   useEffect(() => {
     if (!user) {
       navigate("/auth");
     } else {
       checkIntegrationStatus();
+
+      // Check if we're returning from OAuth
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get("connected") === "true") {
+        handleOAuthCallback();
+      }
     }
   }, [user, navigate]);
+
+  const handleOAuthCallback = async () => {
+    if (!user) return;
+
+    try {
+      // Get the current session which should now include Google tokens
+      const {
+        data: { session },
+        error,
+      } = await supabase.auth.getSession();
+
+      if (error || !session) {
+        toast.error("Geen geldige sessie gevonden");
+        return;
+      }
+
+      // Extract Google tokens from session
+      const providerToken = session.provider_token;
+      const providerRefreshToken = session.provider_refresh_token;
+
+      if (!providerToken) {
+        toast.error("Geen Google access token ontvangen");
+        return;
+      }
+
+      // Store the integration in our database
+      const { error: insertError } = await supabase
+        .from("integrations")
+        .upsert({
+          user_id: user.id,
+          integration_type: "google_calendar",
+          access_token: providerToken,
+          refresh_token: providerRefreshToken,
+          is_active: true,
+          connected_at: new Date().toISOString(),
+        });
+
+      if (insertError) {
+        console.error("Failed to store integration:", insertError);
+        toast.error("Kon integratie niet opslaan");
+        return;
+      }
+
+      setIsGoogleConnected(true);
+      toast.success("Google Calendar succesvol verbonden! 🎉");
+
+      // Clean up URL
+      window.history.replaceState({}, document.title, "/calendar");
+
+      // Load events
+      await loadGoogleEvents();
+    } catch (error) {
+      console.error("OAuth callback error:", {
+        message: error instanceof Error ? error.message : error,
+        stack: error instanceof Error ? error.stack : undefined,
+        fullError: error,
+      });
+      toast.error("Er ging iets mis bij het verwerken van de verbinding");
+    }
+  };
 
   const checkIntegrationStatus = async () => {
     if (!user) return;
@@ -67,37 +136,60 @@ const CalendarIntegration = () => {
         .eq("is_active", true);
 
       const googleIntegration = integrations?.find(
-        (int) => int.integration_type === "google_calendar"
+        (int) => int.integration_type === "google_calendar",
       );
       const microsoftIntegration = integrations?.find(
-        (int) => int.integration_type === "microsoft_calendar"
+        (int) => int.integration_type === "microsoft_calendar",
       );
 
       setIsGoogleConnected(!!googleIntegration);
       setIsMicrosoftConnected(!!microsoftIntegration);
     } catch (error) {
-      console.error("Error checking integration status:", error);
+      console.error("Error checking integration status:", {
+        message: error instanceof Error ? error.message : error,
+        stack: error instanceof Error ? error.stack : undefined,
+        fullError: error,
+      });
     }
   };
 
   const handleGoogleConnect = async () => {
     setLoading(true);
     try {
-      // Mock Google OAuth flow
-      const mockToken = "mock_google_token_" + Date.now();
-
-      await supabase.from("integrations").insert({
-        user_id: user?.id,
-        integration_type: "google_calendar",
-        access_token: mockToken,
-        is_active: true,
+      // Start Google OAuth flow via Supabase
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          scopes: "https://www.googleapis.com/auth/calendar.readonly",
+          queryParams: {
+            access_type: "offline",
+            prompt: "consent",
+          },
+          redirectTo: `${window.location.origin}/calendar?connected=true`,
+        },
       });
 
-      setIsGoogleConnected(true);
-      toast.success("Google Calendar verbonden!");
-      await loadGoogleEvents();
+      if (error) {
+        console.error("Google OAuth error:", {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code,
+          status: error.status,
+          fullError: error,
+        });
+        toast.error("OAuth verbinding mislukt: " + error.message);
+        return;
+      }
+
+      // OAuth redirect will handle the rest
+      toast.success("Redirecting naar Google...");
     } catch (error) {
-      console.error("Google Calendar connection error:", error);
+      console.error("Google Calendar connection error:", {
+        message: error instanceof Error ? error.message : error,
+        stack: error instanceof Error ? error.stack : undefined,
+        fullError: error,
+      });
       toast.error("Verbinding mislukt");
     } finally {
       setLoading(false);
@@ -121,7 +213,11 @@ const CalendarIntegration = () => {
       toast.success("Microsoft Calendar verbonden!");
       await loadMicrosoftEvents();
     } catch (error) {
-      console.error("Microsoft Calendar connection error:", error);
+      console.error("Microsoft Calendar connection error:", {
+        message: error instanceof Error ? error.message : error,
+        stack: error instanceof Error ? error.stack : undefined,
+        fullError: error,
+      });
       toast.error("Verbinding mislukt");
     } finally {
       setLoading(false);
@@ -129,26 +225,101 @@ const CalendarIntegration = () => {
   };
 
   const loadGoogleEvents = async () => {
-    // Mock Google Calendar events
-    const mockEvents: GoogleCalendarEvent[] = [
-      {
-        id: "1",
-        summary: "Team Standup",
-        description: "Daily team standup meeting",
-        start: { dateTime: new Date(Date.now() + 3600000).toISOString() },
-        end: { dateTime: new Date(Date.now() + 5400000).toISOString() },
-        attendees: [{ email: "colleague@example.com" }],
-      },
-      {
-        id: "2",
-        summary: "Project Review",
-        description: "Monthly project review session",
-        start: { dateTime: new Date(Date.now() + 86400000).toISOString() },
-        end: { dateTime: new Date(Date.now() + 90000000).toISOString() },
-      },
-    ];
+    if (!isGoogleConnected) return;
 
-    setGoogleEvents(mockEvents);
+    try {
+      // This would load current events for display
+      // For now, we'll show a message that events are imported to planning
+      toast.success("Google Calendar events worden geladen...");
+    } catch (error) {
+      console.error("Failed to load Google events:", {
+        message: error instanceof Error ? error.message : error,
+        stack: error instanceof Error ? error.stack : undefined,
+        fullError: error,
+      });
+      toast.error("Kon Google Calendar events niet laden");
+    }
+  };
+
+  const importGoogleCalendar = async () => {
+    if (!user || !isGoogleConnected) {
+      toast.error("Je moet eerst verbinding maken met Google Calendar");
+      return;
+    }
+
+    setImporting(true);
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session) {
+        toast.error("Geen geldige sessie gevonden");
+        return;
+      }
+
+      const response = await supabase.functions.invoke(
+        "import-google-calendar",
+        {
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+          },
+        },
+      );
+
+      if (response.error) {
+        console.error("Import error:", response.error);
+
+        // Check if it's a CORS or function not found error - use client-side fallback
+        if (
+          response.error.message?.includes("CORS") ||
+          response.error.message?.includes("Failed to send a request")
+        ) {
+          console.log(
+            "Edge Function niet beschikbaar, using client-side fallback...",
+          );
+          toast.info("Gebruik client-side import...");
+
+          try {
+            // Use client-side import as fallback
+            const result = await googleCalendarImport.importCalendarEvents();
+
+            if (result.success) {
+              toast.success(
+                `🎉 ${result.imported} calendar evenementen geïmporteerd! ${result.duplicates > 0 ? `(${result.duplicates} duplicaten overgeslagen)` : ""}`,
+              );
+              await loadGoogleEvents(); // Refresh the events display
+            }
+          } catch (clientError) {
+            console.error("Client-side import error:", clientError);
+            const errorMsg =
+              clientError instanceof Error
+                ? clientError.message
+                : "Client-side import mislukt";
+            toast.error("Import mislukt: " + errorMsg);
+          }
+        } else {
+          toast.error(
+            "Import mislukt: " + (response.error.message || "Onbekende fout"),
+          );
+        }
+        return;
+      }
+
+      const result = response.data;
+      toast.success(
+        `🎉 ${result.imported} evenementen geïmporteerd! ${result.duplicates > 0 ? `(${result.duplicates} duplicaten overgeslagen)` : ""}`,
+      );
+    } catch (error) {
+      console.error("Import Google Calendar error:", {
+        message: error instanceof Error ? error.message : error,
+        stack: error instanceof Error ? error.stack : undefined,
+        fullError: error,
+      });
+      toast.error("Er ging iets mis bij het importeren");
+    } finally {
+      setImporting(false);
+    }
   };
 
   const loadMicrosoftEvents = async () => {
@@ -167,14 +338,17 @@ const CalendarIntegration = () => {
     setMicrosoftEvents(mockEvents);
   };
 
-  const createFocusSessionFromEvent = async (event: GoogleCalendarEvent | MicrosoftCalendarEvent) => {
+  const createFocusSessionFromEvent = async (
+    event: GoogleCalendarEvent | MicrosoftCalendarEvent,
+  ) => {
     try {
-      const title = 'summary' in event ? event.summary : event.subject;
+      const title = "summary" in event ? event.summary : event.subject;
       const duration = Math.floor(
-        (new Date(event.end.dateTime).getTime() - new Date(event.start.dateTime).getTime()) / 
-        (1000 * 60)
+        (new Date(event.end.dateTime).getTime() -
+          new Date(event.start.dateTime).getTime()) /
+          (1000 * 60),
       );
-      
+
       // Create focus session in database
       await supabase.from("focus_blocks").insert({
         user_id: user?.id,
@@ -183,10 +357,14 @@ const CalendarIntegration = () => {
         notes: `Voorbereiding voor: ${title}`,
         status: "scheduled",
       });
-      
+
       toast.success("Focus sessie aangemaakt!");
     } catch (error) {
-      console.error("Failed to create focus session:", error);
+      console.error("Failed to create focus session:", {
+        message: error instanceof Error ? error.message : error,
+        stack: error instanceof Error ? error.stack : undefined,
+        fullError: error,
+      });
       toast.error("Kon focus sessie niet aanmaken");
     }
   };
@@ -249,7 +427,7 @@ const CalendarIntegration = () => {
                         Nog niet verbonden met Microsoft Calendar
                       </p>
                     </div>
-                    <Button 
+                    <Button
                       onClick={handleMicrosoftConnect}
                       disabled={loading}
                       className="bg-gradient-to-r from-blue-600 to-purple-600"
@@ -303,12 +481,18 @@ const CalendarIntegration = () => {
                                 <div className="flex items-center gap-4 mt-2 text-sm text-gray-500 dark:text-gray-400">
                                   <span className="flex items-center gap-1">
                                     <Clock className="h-3 w-3" />
-                                    {new Date(event.start.dateTime).toLocaleTimeString('nl-NL', {
-                                      hour: '2-digit',
-                                      minute: '2-digit'
-                                    })} - {new Date(event.end.dateTime).toLocaleTimeString('nl-NL', {
-                                      hour: '2-digit',
-                                      minute: '2-digit'
+                                    {new Date(
+                                      event.start.dateTime,
+                                    ).toLocaleTimeString("nl-NL", {
+                                      hour: "2-digit",
+                                      minute: "2-digit",
+                                    })}{" "}
+                                    -{" "}
+                                    {new Date(
+                                      event.end.dateTime,
+                                    ).toLocaleTimeString("nl-NL", {
+                                      hour: "2-digit",
+                                      minute: "2-digit",
                                     })}
                                   </span>
                                 </div>
@@ -316,7 +500,9 @@ const CalendarIntegration = () => {
                               <Button
                                 size="sm"
                                 variant="outline"
-                                onClick={() => createFocusSessionFromEvent(event)}
+                                onClick={() =>
+                                  createFocusSessionFromEvent(event)
+                                }
                               >
                                 Focus Sessie
                               </Button>

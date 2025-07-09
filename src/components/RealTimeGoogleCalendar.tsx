@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -16,7 +15,12 @@ import {
 import { useAuth } from "@/contexts/AuthContext";
 import { useTranslation } from "@/lib/i18n";
 import { toast } from "sonner";
-import { realGoogleIntegration, GoogleCalendarEvent } from "@/lib/real-google-integration";
+import {
+  realGoogleIntegration,
+  GoogleCalendarEvent,
+} from "@/lib/real-google-integration";
+import { googleCalendarImport } from "@/lib/google-calendar-import";
+import { supabase } from "@/integrations/supabase/client";
 
 const RealTimeGoogleCalendar = () => {
   const { user } = useAuth();
@@ -24,6 +28,7 @@ const RealTimeGoogleCalendar = () => {
   const [isConnected, setIsConnected] = useState(false);
   const [events, setEvents] = useState<GoogleCalendarEvent[]>([]);
   const [loading, setLoading] = useState(false);
+  const [importing, setImporting] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
   useEffect(() => {
@@ -36,70 +41,172 @@ const RealTimeGoogleCalendar = () => {
     }
   }, [isConnected, selectedDate]);
 
-  const checkConnectionStatus = () => {
-    setIsConnected(realGoogleIntegration.isConnected());
+  const checkConnectionStatus = async () => {
+    try {
+      const connected = await realGoogleIntegration.isConnectedAsync();
+      setIsConnected(connected);
+    } catch (error) {
+      console.error("Error checking connection status:", {
+        message: error instanceof Error ? error.message : error,
+        stack: error instanceof Error ? error.stack : undefined,
+        fullError: error,
+      });
+      setIsConnected(false);
+    }
   };
 
   const handleConnect = async () => {
     setLoading(true);
     try {
-      // In een echte implementatie zou dit de Google OAuth flow starten
-      const success = await realGoogleIntegration.connect();
-      if (success) {
-        setIsConnected(true);
-        toast.success(t("calendar.connected"));
-        await loadEvents();
-      } else {
-        toast.error("Verbinding met Google Agenda mislukt");
-      }
+      // Redirect to calendar integration page for OAuth flow
+      await realGoogleIntegration.connect();
     } catch (error) {
-      console.error("Google Calendar connection error:", error);
+      console.error("Google Calendar connection error:", {
+        message: error instanceof Error ? error.message : error,
+        stack: error instanceof Error ? error.stack : undefined,
+        fullError: error,
+      });
       toast.error("Er ging iets mis bij het verbinden");
-    } finally {
       setLoading(false);
     }
   };
 
   const loadEvents = async () => {
     if (!isConnected) return;
-    
+
     setLoading(true);
     try {
       const startOfDay = new Date(selectedDate);
       startOfDay.setHours(0, 0, 0, 0);
-      
+
       const endOfDay = new Date(selectedDate);
       endOfDay.setHours(23, 59, 59, 999);
 
       const calendarEvents = await realGoogleIntegration.getEvents(
         "primary",
         startOfDay,
-        endOfDay
+        endOfDay,
       );
       setEvents(calendarEvents);
     } catch (error) {
-      console.error("Failed to load events:", error);
+      console.error("Failed to load events:", {
+        message: error instanceof Error ? error.message : error,
+        stack: error instanceof Error ? error.stack : undefined,
+        fullError: error,
+      });
       toast.error("Kon afspraken niet laden");
     } finally {
       setLoading(false);
     }
   };
 
+  const importToPlanning = async () => {
+    if (!user || !isConnected) {
+      toast.error("Je moet eerst verbinding maken met Google Calendar");
+      return;
+    }
+
+    setImporting(true);
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session) {
+        toast.error("Geen geldige sessie gevonden");
+        return;
+      }
+
+      toast.info("Google Calendar importeren...");
+
+      const response = await supabase.functions.invoke(
+        "import-google-calendar",
+        {
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+          },
+        },
+      );
+
+      if (response.error) {
+        console.error("Import error:", response.error);
+
+        // Check if it's a CORS or function not found error - use client-side fallback
+        if (
+          response.error.message?.includes("CORS") ||
+          response.error.message?.includes("Failed to send a request")
+        ) {
+          console.log(
+            "Edge Function niet beschikbaar, using client-side fallback...",
+          );
+          toast.info("Gebruik client-side import...");
+
+          try {
+            // Use client-side import as fallback
+            const result = await googleCalendarImport.importCalendarEvents();
+
+            if (result.success) {
+              toast.success(
+                `🎉 ${result.imported} calendar evenementen geïmporteerd naar planning! ${result.duplicates > 0 ? `(${result.duplicates} duplicaten overgeslagen)` : ""}`,
+              );
+            }
+          } catch (clientError) {
+            console.error("Client-side import error:", clientError);
+            const errorMsg =
+              clientError instanceof Error
+                ? clientError.message
+                : "Client-side import mislukt";
+            toast.error("Import mislukt: " + errorMsg);
+          }
+        } else {
+          toast.error(
+            "Import mislukt: " + (response.error.message || "Onbekende fout"),
+          );
+        }
+        return;
+      }
+
+      const result = response.data;
+
+      if (result.success) {
+        toast.success(
+          `🎉 ${result.imported} evenementen geïmporteerd naar je planning! ${result.duplicates > 0 ? `(${result.duplicates} duplicaten overgeslagen)` : ""}`,
+        );
+      } else {
+        toast.error("Import mislukt");
+      }
+    } catch (error) {
+      console.error("Import Google Calendar error:", {
+        message: error instanceof Error ? error.message : error,
+        stack: error instanceof Error ? error.stack : undefined,
+        fullError: error,
+      });
+      toast.error("Er ging iets mis bij het importeren");
+    } finally {
+      setImporting(false);
+    }
+  };
+
   const createFocusSessionFromEvent = async (event: GoogleCalendarEvent) => {
     try {
       const duration = Math.floor(
-        (new Date(event.end.dateTime).getTime() - new Date(event.start.dateTime).getTime()) / 
-        (1000 * 60)
+        (new Date(event.end.dateTime).getTime() -
+          new Date(event.start.dateTime).getTime()) /
+          (1000 * 60),
       );
-      
+
       await realGoogleIntegration.createFocusSession(
         `Voorbereiding: ${event.summary}`,
-        Math.min(duration, 120) // Max 2 uur
+        Math.min(duration, 120), // Max 2 uur
       );
-      
+
       toast.success("Focus sessie aangemaakt!");
     } catch (error) {
-      console.error("Failed to create focus session:", error);
+      console.error("Failed to create focus session:", {
+        message: error instanceof Error ? error.message : error,
+        stack: error instanceof Error ? error.stack : undefined,
+        fullError: error,
+      });
       toast.error("Kon focus sessie niet aanmaken");
     }
   };
@@ -120,11 +227,11 @@ const RealTimeGoogleCalendar = () => {
               Nog niet verbonden met Google Agenda
             </p>
             <p>
-              Verbind je Google Agenda om je afspraken te importeren en automatisch 
-              focus sessies in te plannen.
+              Verbind je Google Agenda om je afspraken te importeren en
+              automatisch focus sessies in te plannen.
             </p>
           </div>
-          <Button 
+          <Button
             onClick={handleConnect}
             disabled={loading}
             className="bg-gradient-to-r from-blue-600 to-purple-600"
@@ -158,18 +265,38 @@ const RealTimeGoogleCalendar = () => {
                 </p>
               </div>
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={loadEvents}
-              disabled={loading}
-            >
-              {loading ? (
-                <RefreshCw className="h-4 w-4 animate-spin" />
-              ) : (
-                <RefreshCw className="h-4 w-4" />
-              )}
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={loadEvents}
+                disabled={loading}
+              >
+                {loading ? (
+                  <RefreshCw className="h-4 w-4 animate-spin" />
+                ) : (
+                  <RefreshCw className="h-4 w-4" />
+                )}
+              </Button>
+              <Button
+                onClick={importToPlanning}
+                disabled={importing}
+                size="sm"
+                className="bg-green-600 hover:bg-green-700 text-white"
+              >
+                {importing ? (
+                  <>
+                    <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                    Importeren...
+                  </>
+                ) : (
+                  <>
+                    <CalendarIcon className="h-4 w-4 mr-2" />
+                    Importeer naar Planning
+                  </>
+                )}
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -178,7 +305,9 @@ const RealTimeGoogleCalendar = () => {
         {/* Calendar */}
         <Card className="dark:bg-gray-800 dark:border-gray-700">
           <CardHeader>
-            <CardTitle className="text-gray-900 dark:text-white">Agenda</CardTitle>
+            <CardTitle className="text-gray-900 dark:text-white">
+              Agenda
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <Calendar
@@ -194,14 +323,16 @@ const RealTimeGoogleCalendar = () => {
         <Card className="dark:bg-gray-800 dark:border-gray-700">
           <CardHeader>
             <CardTitle className="text-gray-900 dark:text-white">
-              Afspraken voor {selectedDate.toLocaleDateString('nl-NL')}
+              Afspraken voor {selectedDate.toLocaleDateString("nl-NL")}
             </CardTitle>
           </CardHeader>
           <CardContent>
             {loading ? (
               <div className="text-center py-8">
                 <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-2 text-gray-400" />
-                <p className="text-gray-600 dark:text-gray-400">Afspraken laden...</p>
+                <p className="text-gray-600 dark:text-gray-400">
+                  Afspraken laden...
+                </p>
               </div>
             ) : events.length === 0 ? (
               <div className="text-center py-8 text-gray-600 dark:text-gray-400">
@@ -228,13 +359,21 @@ const RealTimeGoogleCalendar = () => {
                         <div className="flex items-center gap-4 mt-2 text-sm text-gray-500 dark:text-gray-400">
                           <span className="flex items-center gap-1">
                             <Clock className="h-3 w-3" />
-                            {new Date(event.start.dateTime).toLocaleTimeString('nl-NL', {
-                              hour: '2-digit',
-                              minute: '2-digit'
-                            })} - {new Date(event.end.dateTime).toLocaleTimeString('nl-NL', {
-                              hour: '2-digit',
-                              minute: '2-digit'
-                            })}
+                            {new Date(event.start.dateTime).toLocaleTimeString(
+                              "nl-NL",
+                              {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              },
+                            )}{" "}
+                            -{" "}
+                            {new Date(event.end.dateTime).toLocaleTimeString(
+                              "nl-NL",
+                              {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              },
+                            )}
                           </span>
                           {event.attendees && event.attendees.length > 0 && (
                             <span className="flex items-center gap-1">

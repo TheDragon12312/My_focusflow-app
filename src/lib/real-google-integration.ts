@@ -24,10 +24,15 @@ class RealGoogleIntegration {
     return googleOAuth.isConnected();
   }
 
+  async isConnectedAsync(): Promise<boolean> {
+    return await googleOAuth.isSignedIn();
+  }
+
   async connect(): Promise<boolean> {
     try {
-      const result = await googleOAuth.signIn();
-      return !!result;
+      await googleOAuth.signIn();
+      // The actual success will be determined when the OAuth callback completes
+      return true;
     } catch (error) {
       console.error("Failed to connect to Google:", error);
       return false;
@@ -41,11 +46,11 @@ class RealGoogleIntegration {
   async getEvents(
     calendarId: string,
     startDate: Date,
-    endDate: Date
+    endDate: Date,
   ): Promise<GoogleCalendarEvent[]> {
     const accessToken = await googleOAuth.getValidAccessToken();
     if (!accessToken) {
-      throw new Error('Not connected to Google Calendar');
+      throw new Error("Not connected to Google Calendar");
     }
 
     const timeMin = startDate.toISOString();
@@ -54,7 +59,7 @@ class RealGoogleIntegration {
       timeMin,
       timeMax,
       singleEvents: "true",
-      orderBy: "startTime"
+      orderBy: "startTime",
     });
 
     const response = await fetch(
@@ -64,11 +69,11 @@ class RealGoogleIntegration {
           Authorization: `Bearer ${accessToken}`,
           Accept: "application/json",
         },
-      }
+      },
     );
 
     if (!response.ok) {
-      throw new Error('Failed to fetch calendar events');
+      throw new Error("Failed to fetch calendar events");
     }
 
     const data = await response.json();
@@ -81,15 +86,15 @@ class RealGoogleIntegration {
       attendees: event.attendees?.map((attendee: any) => ({
         email: attendee.email,
         displayName: attendee.displayName,
-        responseStatus: attendee.responseStatus
-      }))
+        responseStatus: attendee.responseStatus,
+      })),
     }));
   }
 
   async createFocusSession(title: string, duration: number): Promise<void> {
     const accessToken = await googleOAuth.getValidAccessToken();
     if (!accessToken) {
-      throw new Error('Not connected to Google Calendar');
+      throw new Error("Not connected to Google Calendar");
     }
 
     const startTime = new Date();
@@ -100,20 +105,18 @@ class RealGoogleIntegration {
       description: "Focus session created by FocusFlow",
       start: {
         dateTime: startTime.toISOString(),
-        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       },
       end: {
         dateTime: endTime.toISOString(),
-        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       },
       colorId: "9", // Purple for focus sessions
       transparency: "opaque",
       reminders: {
         useDefault: false,
-        overrides: [
-          { method: "popup", minutes: 5 }
-        ]
-      }
+        overrides: [{ method: "popup", minutes: 5 }],
+      },
     };
 
     const response = await fetch(
@@ -124,12 +127,12 @@ class RealGoogleIntegration {
           Authorization: `Bearer ${accessToken}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(event)
-      }
+        body: JSON.stringify(event),
+      },
     );
 
     if (!response.ok) {
-      throw new Error('Failed to create focus session');
+      throw new Error("Failed to create focus session");
     }
   }
 }

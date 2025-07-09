@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -14,7 +13,11 @@ const TermsOfService = () => {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-purple-900">
       <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700 sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center">
-          <Button variant="ghost" onClick={() => navigate(-1)} className="dark:text-white">
+          <Button
+            variant="ghost"
+            onClick={() => navigate(-1)}
+            className="dark:text-white"
+          >
             <ArrowLeft className="h-5 w-5 mr-2" />
             {t("common.back")}
           </Button>
@@ -88,7 +91,7 @@ const TermsOfService = () => {
               </h2>
               <p>{t("terms.contact.content")}</p>
               <p className="font-semibold mt-2">
-                Email: support@focusflow.nl
+                Email: focusflow@alwaysdata.net
               </p>
             </section>
           </CardContent>
