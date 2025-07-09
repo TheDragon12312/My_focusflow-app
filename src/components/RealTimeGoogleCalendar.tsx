@@ -312,6 +312,37 @@ const RealTimeGoogleCalendar = () => {
       {/* Connection Status */}
       <Card className="dark:bg-gray-800 dark:border-gray-700">
         <CardContent className="p-4">
+          {/* Error Alert for connected state */}
+          {error && (
+            <Alert className="border-red-200 bg-red-50 dark:bg-red-900/20 dark:border-red-800 mb-4">
+              <AlertCircle className="h-4 w-4 text-red-600" />
+              <AlertDescription className="text-red-800 dark:text-red-300">
+                <div className="flex items-center justify-between">
+                  <span>Fout bij laden agenda: {error}</span>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleRetry}
+                      className="h-6 px-2 text-xs"
+                    >
+                      <RefreshCw className="h-3 w-3 mr-1" />
+                      Retry
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={clearError}
+                      className="h-6 px-2 text-xs"
+                    >
+                      ✕
+                    </Button>
+                  </div>
+                </div>
+              </AlertDescription>
+            </Alert>
+          )}
+
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <CheckCircle className="h-5 w-5 text-green-600" />
@@ -321,6 +352,7 @@ const RealTimeGoogleCalendar = () => {
                 </p>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
                   Agenda synchronisatie actief
+                  {eventsLoading && " - Laden..."}
                 </p>
               </div>
             </div>
@@ -329,9 +361,9 @@ const RealTimeGoogleCalendar = () => {
                 variant="outline"
                 size="sm"
                 onClick={loadEvents}
-                disabled={loading}
+                disabled={eventsLoading || isLoading}
               >
-                {loading ? (
+                {eventsLoading ? (
                   <RefreshCw className="h-4 w-4 animate-spin" />
                 ) : (
                   <RefreshCw className="h-4 w-4" />
