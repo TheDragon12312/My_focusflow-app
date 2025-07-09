@@ -80,7 +80,7 @@ const RealTimeGoogleCalendar = () => {
   const loadEvents = async () => {
     if (!isConnected) return;
 
-    setLoading(true);
+    setEventsLoading(true);
     try {
       const startOfDay = new Date(selectedDate);
       startOfDay.setHours(0, 0, 0, 0);
@@ -88,21 +88,13 @@ const RealTimeGoogleCalendar = () => {
       const endOfDay = new Date(selectedDate);
       endOfDay.setHours(23, 59, 59, 999);
 
-      const calendarEvents = await realGoogleIntegration.getEvents(
-        "primary",
-        startOfDay,
-        endOfDay,
-      );
+      const calendarEvents = await getEvents("primary", startOfDay, endOfDay);
       setEvents(calendarEvents);
     } catch (error) {
-      console.error("Failed to load events:", {
-        message: error instanceof Error ? error.message : error,
-        stack: error instanceof Error ? error.stack : undefined,
-        fullError: error,
-      });
-      toast.error("Kon afspraken niet laden");
+      console.error("Failed to load events:", error);
+      // Error wordt al afgehandeld in de hook
     } finally {
-      setLoading(false);
+      setEventsLoading(false);
     }
   };
 
