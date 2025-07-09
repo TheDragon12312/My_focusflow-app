@@ -11,7 +11,7 @@ import {
 } from "@/lib/subscription-utils";
 import { addAdmin as utilAddAdmin } from "@/lib/admin-utils";
 
-export type PlanType = "free" | "pro" | "team";
+export type PlanType = UserPlan;
 export type SubscriptionStatus = "active" | "cancelled" | "past_due" | "trial";
 
 export interface UserProfile {
