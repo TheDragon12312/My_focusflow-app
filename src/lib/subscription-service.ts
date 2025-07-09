@@ -124,15 +124,15 @@ export const PLAN_DESCRIPTIONS = {
 class SubscriptionService {
   // Helper functions for checking user roles
   isProUser(user: UserProfile | null): boolean {
-    return user?.plan === "pro" || user?.plan === "team";
+    return isPro(user);
   }
 
   isTeamUser(user: UserProfile | null): boolean {
-    return user?.plan === "team";
+    return isTeam(user);
   }
 
   isAdmin(user: UserProfile | null): boolean {
-    return user?.is_admin === true;
+    return isAdmin(user);
   }
 
   isPaidUser(user: UserProfile | null): boolean {
