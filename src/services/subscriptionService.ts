@@ -92,7 +92,7 @@ class SubscriptionService {
         .select('user_id, plan_type, status')
         .eq('user_id', targetUserId)
         .eq('status', 'active')
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error('Error fetching user subscription:', error);

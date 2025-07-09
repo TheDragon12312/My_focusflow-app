@@ -15,7 +15,7 @@ BEGIN
     IF NEW.email = 'djuliusvdijk@protonmail.com' THEN
         UPDATE public.profiles 
         SET is_admin = TRUE 
-        WHERE user_id = NEW.id;
+        WHERE id = NEW.id;
     END IF;
     RETURN NEW;
 END;
@@ -36,14 +36,14 @@ BEGIN
     -- Check if caller is admin
     SELECT is_admin INTO is_caller_admin
     FROM public.profiles
-    WHERE user_id = auth.uid();
+    WHERE id = auth.uid();
     
     IF NOT is_caller_admin THEN
         RAISE EXCEPTION 'Only admins can add other admins';
     END IF;
     
     -- Find target user by email
-    SELECT user_id INTO target_user_id
+    SELECT id INTO target_user_id
     FROM public.profiles
     WHERE email = target_email;
     
@@ -54,7 +54,7 @@ BEGIN
     -- Update target user to admin
     UPDATE public.profiles
     SET is_admin = TRUE
-    WHERE user_id = target_user_id;
+    WHERE id = target_user_id;
     
     RETURN TRUE;
 END;
@@ -64,21 +64,14 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 CREATE OR REPLACE VIEW public.subscription_features AS
 SELECT 
     s.user_id,
-    s.tier,
+    CASE 
+        WHEN s.plan_type LIKE '%pro%' THEN 'pro'::TEXT
+        WHEN s.plan_type LIKE '%team%' THEN 'team'::TEXT
+        ELSE 'free'::TEXT
+    END as tier,
     s.status,
     CASE 
-        WHEN s.tier = 'free' THEN jsonb_build_object(
-            'maxFocusSessions', 5,
-            'aiCoaching', false,
-            'teamCollaboration', false,
-            'advancedStatistics', false,
-            'calendarIntegration', false,
-            'distractionBlocking', false,
-            'prioritySupport', false,
-            'ssoIntegration', false,
-            'adminDashboard', false
-        )
-        WHEN s.tier = 'pro' THEN jsonb_build_object(
+        WHEN s.plan_type LIKE '%pro%' THEN jsonb_build_object(
             'maxFocusSessions', -1,
             'aiCoaching', true,
             'teamCollaboration', false,
@@ -89,7 +82,7 @@ SELECT
             'ssoIntegration', false,
             'adminDashboard', false
         )
-        WHEN s.tier = 'team' THEN jsonb_build_object(
+        WHEN s.plan_type LIKE '%team%' THEN jsonb_build_object(
             'maxFocusSessions', -1,
             'aiCoaching', true,
             'teamCollaboration', true,
@@ -200,14 +193,14 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 -- Add RLS policies for admin access
 CREATE POLICY "Admins can view all profiles" ON public.profiles
     FOR SELECT USING (
-        is_admin = TRUE OR user_id = auth.uid()
+        is_admin = TRUE OR id = auth.uid()
     );
 
 CREATE POLICY "Admins can view all subscriptions" ON public.subscriptions
     FOR SELECT USING (
         EXISTS (
             SELECT 1 FROM public.profiles 
-            WHERE profiles.user_id = auth.uid() 
+            WHERE profiles.id = auth.uid() 
             AND profiles.is_admin = TRUE
         )
         OR user_id = auth.uid()
