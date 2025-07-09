@@ -387,6 +387,15 @@ const RealTimeGoogleCalendar = () => {
                   </>
                 )}
               </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleDisconnect}
+                disabled={isLoading}
+                className="text-red-600 border-red-200 hover:bg-red-50 dark:text-red-400 dark:border-red-800 dark:hover:bg-red-900/20"
+              >
+                Verbreek verbinding
+              </Button>
             </div>
           </div>
         </CardContent>
