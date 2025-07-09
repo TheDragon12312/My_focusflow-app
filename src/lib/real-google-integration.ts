@@ -34,7 +34,11 @@ class RealGoogleIntegration {
       // The actual success will be determined when the OAuth callback completes
       return true;
     } catch (error) {
-      console.error("Failed to connect to Google:", error);
+      console.error("Failed to connect to Google:", {
+        message: error instanceof Error ? error.message : error,
+        stack: error instanceof Error ? error.stack : undefined,
+        fullError: error,
+      });
       return false;
     }
   }
