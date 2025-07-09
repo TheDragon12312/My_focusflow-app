@@ -217,13 +217,24 @@ class SubscriptionService {
         .single();
 
       if (error) {
-        console.error("Error fetching user profile:", error);
+        console.error("Error fetching user profile:", {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code,
+          status: error.status,
+          fullError: error,
+        });
         return null;
       }
 
       return profile;
     } catch (error) {
-      console.error("Error getting user profile:", error);
+      console.error("Error getting user profile:", {
+        message: error instanceof Error ? error.message : error,
+        stack: error instanceof Error ? error.stack : undefined,
+        fullError: error,
+      });
       return null;
     }
   }
