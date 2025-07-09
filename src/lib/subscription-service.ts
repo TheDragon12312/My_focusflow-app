@@ -298,7 +298,14 @@ class SubscriptionService {
       const { data: users, error: userError } =
         await supabase.auth.admin.listUsers();
       if (userError) {
-        console.error("Error listing users:", userError);
+        console.error("Error listing users:", {
+          message: userError.message,
+          details: userError.details,
+          hint: userError.hint,
+          code: userError.code,
+          status: userError.status,
+          fullError: userError,
+        });
         return false;
       }
 
@@ -315,13 +322,24 @@ class SubscriptionService {
         .eq("id", targetUser.id);
 
       if (error) {
-        console.error("Error making user admin:", error);
+        console.error("Error making user admin:", {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code,
+          status: error.status,
+          fullError: error,
+        });
         return false;
       }
 
       return true;
     } catch (error) {
-      console.error("Error adding admin:", error);
+      console.error("Error adding admin:", {
+        message: error instanceof Error ? error.message : error,
+        stack: error instanceof Error ? error.stack : undefined,
+        fullError: error,
+      });
       return false;
     }
   }
