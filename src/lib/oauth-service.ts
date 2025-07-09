@@ -25,7 +25,11 @@ class OAuthServiceClass {
       this.storeProfile(mockProfile);
       return mockProfile;
     } catch (error) {
-      console.error("GitHub authentication failed:", error);
+      console.error("GitHub authentication failed:", {
+        message: error instanceof Error ? error.message : error,
+        stack: error instanceof Error ? error.stack : undefined,
+        fullError: error,
+      });
       return null;
     }
   }
