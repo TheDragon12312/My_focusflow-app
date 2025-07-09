@@ -84,13 +84,24 @@ export const logError = (message: string, error: any): void => {
  * @param error - The Supabase error object
  */
 export const logSupabaseError = (message: string, error: any): void => {
-  const formattedError = {
+  if (!error) {
+    console.error(message, "Unknown error occurred");
+    return;
+  }
+
+  // Create a clean error object for logging
+  const errorInfo = {
     message: error?.message || "Unknown Supabase error",
-    details: error?.details,
-    hint: error?.hint,
-    code: error?.code,
-    status: error?.status,
-    fullError: error,
+    code: error?.code || "No code",
+    details: error?.details || "No details",
+    hint: error?.hint || "No hint",
+    status: error?.status || "No status",
   };
-  console.error(message, formattedError);
+
+  console.error(message + ":", errorInfo);
+
+  // Also log the full error for debugging if needed
+  if (error?.stack) {
+    console.error("Stack trace:", error.stack);
+  }
 };
