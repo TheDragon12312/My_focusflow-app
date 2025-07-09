@@ -27,7 +27,6 @@ import Demo from "./pages/Demo";
 import NotFound from "./pages/NotFound";
 import OAuthCallback from "./pages/OAuthCallback";
 import TermsOfService from "./pages/TermsOfService";
-import AdminPage from "./pages/AdminPage";
 import DistractionMonitor from "./components/DistractionMonitor";
 
 const queryClient = new QueryClient();
@@ -65,7 +64,6 @@ const App = () => (
           <Route path="/product/:productId" element={<ProductDetail />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/oauth-callback" element={<OAuthCallback />} />
-          <Route path="/admin" element={<AdminPage />} />
           <Route path="/terms" element={<TermsOfService />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
