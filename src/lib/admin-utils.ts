@@ -50,7 +50,14 @@ export const addAdmin = async (
       .single();
 
     if (error) {
-      console.error("Error promoting user to admin:", error);
+      console.error("Error promoting user to admin:", {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code,
+        status: error.status,
+        fullError: error,
+      });
 
       if (error.code === "PGRST116") {
         return {
