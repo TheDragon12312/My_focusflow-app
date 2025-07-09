@@ -140,12 +140,17 @@ export const getUpgradeMessage = (featureName: FeatureName): string => {
   const teamFeatures = FEATURE_MATRIX.team;
 
   if (proFeatures.includes(featureName)) {
-    return "This feature is available with Pro plan. Upgrade to unlock unlimited focus sessions, AI coach, and more!";
+    return "Deze functie is beschikbaar met het Pro-plan. Upgrade voor onbeperkte focus-sessies, AI-coach en meer!";
   }
 
   if (teamFeatures.includes(featureName)) {
-    return "This feature is available with Team plan. Upgrade to unlock team collaboration, shared analytics, and dedicated support!";
+    return "Deze functie is beschikbaar met het Team-plan. Upgrade voor team samenwerking, gedeelde statistieken en toegewijde ondersteuning!";
   }
 
-  return "This feature requires a paid plan. Upgrade to unlock advanced productivity features!";
+  return "Deze functie vereist een betaald plan. Upgrade voor geavanceerde productiviteitsfuncties!";
+};
+
+// Specifiek bericht voor dagelijkse limiet van gratis plan
+export const getDailyLimitMessage = (): string => {
+  return "Je hebt het maximum van 5 focus-sessies vandaag bereikt voor het gratis plan. Upgrade naar Pro voor onbeperkte sessies en extra functies.";
 };
