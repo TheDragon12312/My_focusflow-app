@@ -208,6 +208,7 @@ class GoogleOAuthService {
       }
 
       console.log("Checking if user is signed in:", user.id);
+      console.log("Querying integrations table for Google Calendar...");
 
       // First check session for provider token
       const {
