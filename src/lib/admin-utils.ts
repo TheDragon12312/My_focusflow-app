@@ -78,7 +78,11 @@ export const addAdmin = async (
       user: updatedProfile,
     };
   } catch (error: any) {
-    console.error("Unexpected error in addAdmin:", error);
+    console.error("Unexpected error in addAdmin:", {
+      message: error.message || "Unknown error",
+      stack: error.stack,
+      fullError: error,
+    });
     return {
       success: false,
       message: `Unexpected error: ${error.message || "Unknown error"}`,
