@@ -28,15 +28,28 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 const RealTimeGoogleCalendar = () => {
   const { user } = useAuth();
   const { t } = useTranslation();
-  const [isConnected, setIsConnected] = useState(false);
+  const {
+    isConnected,
+    isLoading,
+    connectionStatus,
+    error,
+    initialize,
+    connect,
+    disconnect,
+    retryConnection,
+    getEvents,
+    clearError,
+  } = useGoogleCalendarIntegration();
+
   const [events, setEvents] = useState<GoogleCalendarEvent[]>([]);
-  const [loading, setLoading] = useState(false);
   const [importing, setImporting] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [eventsLoading, setEventsLoading] = useState(false);
 
+  // Initialiseer bij eerste load
   useEffect(() => {
-    checkConnectionStatus();
-  }, []);
+    initialize();
+  }, [initialize]);
 
   useEffect(() => {
     if (isConnected) {
