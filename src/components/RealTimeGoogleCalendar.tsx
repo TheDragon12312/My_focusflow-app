@@ -19,8 +19,11 @@ import {
   realGoogleIntegration,
   GoogleCalendarEvent,
 } from "@/lib/real-google-integration";
+import { enhancedGoogleIntegration } from "@/lib/enhanced-google-integration";
+import { useGoogleCalendarIntegration } from "@/hooks/useGoogleCalendarIntegration";
 import { googleCalendarImport } from "@/lib/google-calendar-import";
 import { supabase } from "@/integrations/supabase/client";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const RealTimeGoogleCalendar = () => {
   const { user } = useAuth();
