@@ -180,13 +180,24 @@ class SubscriptionService {
         .lt("created_at", tomorrow.toISOString());
 
       if (error) {
-        console.error("Error checking focus session count:", error);
+        console.error("Error checking focus session count:", {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code,
+          status: error.status,
+          fullError: error,
+        });
         return false;
       }
 
       return (count || 0) < maxSessions;
     } catch (error) {
-      console.error("Error checking focus session limit:", error);
+      console.error("Error checking focus session limit:", {
+        message: error instanceof Error ? error.message : error,
+        stack: error instanceof Error ? error.stack : undefined,
+        fullError: error,
+      });
       return false;
     }
   }
