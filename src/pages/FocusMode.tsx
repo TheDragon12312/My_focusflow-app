@@ -25,6 +25,8 @@ import { PersistentStats } from "@/lib/persistent-stats";
 import { SettingsManager } from "@/lib/settings-manager";
 import { notificationService } from "@/lib/notification-service";
 import { useToast } from "@/hooks/use-toast";
+import { subscriptionService } from "@/services/subscriptionService";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface TaskBlock {
   id: string;
@@ -54,6 +56,10 @@ const FocusMode = () => {
   const [isRunning, setIsRunning] = useState(false);
   const [sessionsCompleted, setSessionsCompleted] = useState(0);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [canStartSession, setCanStartSession] = useState(true);
+  const [dailySessionsUsed, setDailySessionsUsed] = useState(0);
+  const [maxDailySessions, setMaxDailySessions] = useState(-1);
+  const [isCheckingLimits, setIsCheckingLimits] = useState(true);
 
   const timerRef = useRef<number | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -81,6 +87,33 @@ const FocusMode = () => {
     // Set initial time remaining
     setTimeRemaining(focusTime);
   }, []);
+
+  // Check subscription limits
+  useEffect(() => {
+    const checkLimits = async () => {
+      if (!user) {
+        setIsCheckingLimits(false);
+        return;
+      }
+
+      try {
+        const canStart = await subscriptionService.canStartFocusSession(user.id);
+        const dailyCount = await subscriptionService.getDailyFocusSessionCount(user.id);
+        const subscription = await subscriptionService.getUserSubscription(user.id);
+        
+        setCanStartSession(canStart);
+        setDailySessionsUsed(dailyCount);
+        setMaxDailySessions(subscription?.features.maxFocusSessions || 5);
+      } catch (error) {
+        console.error('Error checking subscription limits:', error);
+        setCanStartSession(true); // Default to allowing if check fails
+      } finally {
+        setIsCheckingLimits(false);
+      }
+    };
+
+    checkLimits();
+  }, [user]);
 
   useEffect(() => {
     setFocusTime(duration * 60);
@@ -217,6 +250,16 @@ const FocusMode = () => {
   const startSession = () => {
     if (isRunning) return;
 
+    // Check subscription limits
+    if (!canStartSession) {
+      toast({
+        title: "Dagelijkse limiet bereikt",
+        description: `Je hebt je dagelijkse limiet van ${maxDailySessions} focus sessies bereikt. Upgrade naar Pro voor onbeperkte sessies.`,
+        variant: "destructive",
+      });
+      return;
+    }
+
     console.log("🎯 Starting focus session...");
     setIsRunning(true);
     setCurrentPhase("focus");
@@ -310,6 +353,28 @@ const FocusMode = () => {
 
       {/* Content */}
       <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
+        {/* Subscription Limit Warning */}
+        {!isCheckingLimits && maxDailySessions !== -1 && (
+          <Alert className={dailySessionsUsed >= maxDailySessions ? "border-red-200 bg-red-50" : "border-amber-200 bg-amber-50"}>
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>
+              {dailySessionsUsed >= maxDailySessions ? (
+                <>
+                  Je hebt je dagelijkse limiet van {maxDailySessions} focus sessies bereikt. 
+                  <Button variant="link" className="p-0 h-auto ml-1" onClick={() => navigate('/pricing')}>
+                    Upgrade naar Pro
+                  </Button> voor onbeperkte sessies.
+                </>
+              ) : (
+                <>
+                  Je hebt {dailySessionsUsed} van {maxDailySessions} dagelijkse focus sessies gebruikt.
+                  {maxDailySessions - dailySessionsUsed === 1 && " Dit is je laatste sessie voor vandaag."}
+                </>
+              )}
+            </AlertDescription>
+          </Alert>
+        )}
+
         {/* Task and Timer */}
         <Card className="shadow-xl border-0">
           <CardHeader>
@@ -336,7 +401,12 @@ const FocusMode = () => {
               <Button variant="outline" size="icon" onClick={skipToPreviousPhase}>
                 <SkipBack className="h-5 w-5" />
               </Button>
-              <Button variant="outline" size="lg" onClick={toggleTimer}>
+              <Button 
+                variant="outline" 
+                size="lg" 
+                onClick={toggleTimer}
+                disabled={!canStartSession && !isRunning}
+              >
                 {isRunning ? (
                   <>
                     <Pause className="h-5 w-5 mr-2" />
@@ -345,7 +415,7 @@ const FocusMode = () => {
                 ) : (
                   <>
                     <Play className="h-5 w-5 mr-2" />
-                    Start
+                    {!canStartSession ? "Limiet bereikt" : "Start"}
                   </>
                 )}
               </Button>
