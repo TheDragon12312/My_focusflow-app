@@ -113,7 +113,7 @@ export const getUserPlanInfo = (user: User | null) => {
   if (!user) {
     return {
       plan: "free" as UserPlan,
-      planDisplayName: "Free",
+      planDisplayName: "Gratis",
       isAdmin: false,
       features: [],
     };
@@ -121,7 +121,7 @@ export const getUserPlanInfo = (user: User | null) => {
 
   const plan = user.plan || "free";
   const planDisplayNames = {
-    free: "Free",
+    free: "Gratis",
     pro: "Pro",
     team: "Team",
   };
