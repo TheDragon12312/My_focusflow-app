@@ -216,31 +216,92 @@ const RealTimeGoogleCalendar = () => {
           <CardTitle className="flex items-center gap-2 text-gray-900 dark:text-white">
             <CalendarIcon className="h-5 w-5" />
             {t("calendar.integration")}
+            {connectionStatus.retryCount > 0 && (
+              <Badge
+                variant="outline"
+                className="text-orange-600 border-orange-600"
+              >
+                Retry {connectionStatus.retryCount}
+              </Badge>
+            )}
           </CardTitle>
         </CardHeader>
-        <CardContent className="text-center space-y-4">
-          <div className="text-gray-600 dark:text-gray-400">
-            <CalendarIcon className="h-16 w-16 mx-auto mb-4 text-gray-300" />
-            <p className="text-lg font-medium mb-2">
-              Nog niet verbonden met Google Agenda
-            </p>
-            <p>
-              Verbind je Google Agenda om je afspraken te importeren en
-              automatisch focus sessies in te plannen.
-            </p>
+        <CardContent className="space-y-4">
+          {/* Error Alert */}
+          {error && (
+            <Alert className="border-red-200 bg-red-50 dark:bg-red-900/20 dark:border-red-800">
+              <AlertCircle className="h-4 w-4 text-red-600" />
+              <AlertDescription className="text-red-800 dark:text-red-300">
+                <div className="flex items-center justify-between">
+                  <span>{error}</span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={clearError}
+                    className="ml-2 h-6 px-2 text-xs"
+                  >
+                    ✕
+                  </Button>
+                </div>
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {/* Connection Status */}
+          {connectionStatus.lastAttempt && (
+            <Alert className="border-yellow-200 bg-yellow-50 dark:bg-yellow-900/20 dark:border-yellow-800">
+              <Clock className="h-4 w-4 text-yellow-600" />
+              <AlertDescription className="text-yellow-800 dark:text-yellow-300">
+                Laatste poging:{" "}
+                {connectionStatus.lastAttempt.toLocaleTimeString()}
+                {connectionStatus.retryCount > 0 &&
+                  ` (${connectionStatus.retryCount} pogingen)`}
+              </AlertDescription>
+            </Alert>
+          )}
+
+          <div className="text-center space-y-4">
+            <div className="text-gray-600 dark:text-gray-400">
+              <CalendarIcon className="h-16 w-16 mx-auto mb-4 text-gray-300" />
+              <p className="text-lg font-medium mb-2">
+                {error
+                  ? "Verbinding met Google Agenda mislukt"
+                  : "Nog niet verbonden met Google Agenda"}
+              </p>
+              <p>
+                Verbind je Google Agenda om je afspraken te importeren en
+                automatisch focus sessies in te plannen.
+              </p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-2 justify-center">
+              <Button
+                onClick={handleConnect}
+                disabled={isLoading}
+                className="bg-gradient-to-r from-blue-600 to-purple-600"
+              >
+                {isLoading ? (
+                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <CalendarIcon className="h-4 w-4 mr-2" />
+                )}
+                {error ? "Opnieuw proberen" : t("calendar.connectGoogle")}
+              </Button>
+
+              {error && connectionStatus.retryCount > 0 && (
+                <Button
+                  variant="outline"
+                  onClick={handleRetry}
+                  disabled={isLoading}
+                >
+                  <RefreshCw
+                    className={`h-4 w-4 mr-2 ${isLoading ? "animate-spin" : ""}`}
+                  />
+                  Automatisch opnieuw proberen
+                </Button>
+              )}
+            </div>
           </div>
-          <Button
-            onClick={handleConnect}
-            disabled={loading}
-            className="bg-gradient-to-r from-blue-600 to-purple-600"
-          >
-            {loading ? (
-              <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-            ) : (
-              <CalendarIcon className="h-4 w-4 mr-2" />
-            )}
-            {t("calendar.connectGoogle")}
-          </Button>
         </CardContent>
       </Card>
     );
