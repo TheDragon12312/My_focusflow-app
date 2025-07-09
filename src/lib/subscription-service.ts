@@ -172,45 +172,9 @@ class SubscriptionService {
     // Unlimited for pro/team users
     if (this.isProUser(user)) return true;
 
-    // Check daily limit for free users
-    const maxSessions = PLAN_FEATURES[user.plan].maxFocusSessionsPerDay;
-    if (maxSessions === null) return true;
-
-    // Count today's sessions
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-
-    try {
-      const { count, error } = await supabase
-        .from("focus_blocks")
-        .select("*", { count: "exact", head: true })
-        .eq("user_id", user.id)
-        .gte("created_at", today.toISOString())
-        .lt("created_at", tomorrow.toISOString());
-
-      if (error) {
-        console.error("Error checking focus session count:", {
-          message: error.message,
-          details: error.details,
-          hint: error.hint,
-          code: error.code,
-          status: error.status,
-          fullError: error,
-        });
-        return false;
-      }
-
-      return (count || 0) < maxSessions;
-    } catch (error) {
-      console.error("Error checking focus session limit:", {
-        message: error instanceof Error ? error.message : error,
-        stack: error instanceof Error ? error.stack : undefined,
-        fullError: error,
-      });
-      return false;
-    }
+    // Use the utility function to check daily limit
+    const hasReachedLimit = await hasReachedDailyFocusLimit(user);
+    return !hasReachedLimit;
   }
 
   // Get user profile
