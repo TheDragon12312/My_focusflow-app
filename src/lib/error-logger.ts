@@ -85,23 +85,31 @@ export const logError = (message: string, error: any): void => {
  */
 export const logSupabaseError = (message: string, error: any): void => {
   if (!error) {
-    console.error(message, "Unknown error occurred");
+    console.error(message + ": Unknown error occurred");
     return;
   }
 
-  // Create a clean error object for logging
-  const errorInfo = {
-    message: error?.message || "Unknown Supabase error",
-    code: error?.code || "No code",
-    details: error?.details || "No details",
-    hint: error?.hint || "No hint",
-    status: error?.status || "No status",
-  };
+  // Extract error information safely
+  const errorMessage = error?.message || "Unknown Supabase error";
+  const errorCode = error?.code || "No code";
+  const errorDetails = error?.details || "No details";
+  const errorHint = error?.hint || "No hint";
+  const errorStatus = error?.status || "No status";
 
-  console.error(message + ":", errorInfo);
+  // Log as separate lines to avoid [object Object] issues
+  console.group(message);
+  console.error("Message:", errorMessage);
+  console.error("Code:", errorCode);
+  console.error("Details:", errorDetails);
+  console.error("Hint:", errorHint);
+  console.error("Status:", errorStatus);
 
-  // Also log the full error for debugging if needed
+  // Log stack trace if available
   if (error?.stack) {
-    console.error("Stack trace:", error.stack);
+    console.error("Stack:", error.stack);
   }
+
+  // Log the raw error for debugging
+  console.error("Raw error:", JSON.stringify(error, null, 2));
+  console.groupEnd();
 };
