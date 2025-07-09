@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { logSupabaseError, logError } from "@/lib/error-logger";
 
 // Google OAuth Configuration
 export const GOOGLE_CONFIG = {
