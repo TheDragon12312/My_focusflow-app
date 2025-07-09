@@ -8,6 +8,7 @@ export {
   hasReachedDailyFocusLimit,
   getUserPlanInfo,
   getUpgradeMessage,
+  getDailyLimitMessage,
   FREE_PLAN_LIMITS,
   type UserPlan,
   type User,
