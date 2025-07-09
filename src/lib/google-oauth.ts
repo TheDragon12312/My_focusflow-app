@@ -229,20 +229,20 @@ class GoogleOAuthService {
         .single();
 
       if (error) {
-        logSupabaseError("Error checking integrations", error);
+        // PGRST116 means no rows found - this is expected for users without integrations
+        if (error.code === "PGRST116") {
+          console.log("No Google Calendar integration found for user");
 
-        // If no database record but have session token, that's still signed in
-        if (
-          error.code === "PGRST116" &&
-          session?.provider_token &&
-          session.provider === "google"
-        ) {
-          console.log(
-            "No database record but have session token - user is signed in",
-          );
-          return true;
+          // If we have a session token, that means user is signed in via OAuth
+          if (session?.provider_token && session.provider === "google") {
+            console.log("But found Google session token - user is signed in");
+            return true;
+          }
+          return false;
         }
 
+        // For other errors, log them properly
+        logSupabaseError("Error checking integrations", error);
         return false;
       }
 
