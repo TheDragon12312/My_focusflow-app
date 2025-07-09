@@ -243,6 +243,10 @@ class GoogleOAuthService {
         }
 
         // For other errors, log them properly
+        console.log("🔍 DEBUG: Raw error object:", error);
+        console.log("🔍 DEBUG: Error type:", typeof error);
+        console.log("🔍 DEBUG: Error constructor:", error?.constructor?.name);
+        console.log("🔍 DEBUG: Error keys:", Object.keys(error || {}));
         logSupabaseError("Error checking integrations", error);
         return false;
       }
