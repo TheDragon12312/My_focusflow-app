@@ -1,73 +1,239 @@
-# Welcome to your Lovable project
+# VitalLife Coaching - Voedingsadvies & Lifestyle Coaching Website
 
-## Project info
+Een moderne, professionele website voor voedingsdeskundige en lifestyle coach Maria van der Berg. De website is gebouwd met React, TypeScript, en Tailwind CSS, en biedt een complete online aanwezigheid voor haar coaching praktijk.
 
-**URL**: https://lovable.dev/projects/02b271a5-be06-4bc7-b0cd-0b0d710622c1
+## 🌟 Kenmerken
 
-## How can I edit this code?
+### Bedrijfsinformatie
+- **Bedrijfsnaam**: VitalLife Coaching
+- **Eigenaar**: Maria van der Berg
+- **Specialisatie**: Voedingsadvies, afvalcoaching, lifestyle coaching
+- **Doelgroep**: Nederlandse volwassenen 25-55 jaar
+- **Locatie**: Amsterdam, Nederland
 
-There are several ways of editing your application.
+### Website Functionaliteiten
+- ✅ Responsive design (mobiel-vriendelijk)
+- ✅ Moderne, professionele uitstraling
+- ✅ SEO geoptimaliseerd
+- ✅ Snelle laadtijden
+- ✅ Toegankelijk voor alle gebruikers
+- ✅ Nederlands taalgebruik
+- ✅ GDPR compliant
+- ✅ Google Analytics ready
 
-**Use Lovable**
+## 📄 Pagina's
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/02b271a5-be06-4bc7-b0cd-0b0d710622c1) and start prompting.
+### 1. Homepage (`/`)
+- Hero sectie met persoonlijke foto en welkomstbericht
+- Introductie van 150 woorden
+- Drie hoofdservices in kaarten
+- Testimonials sectie met klantbeoordelingen
+- Call-to-action voor gratis intake gesprek
+- Statistieken over gewichtsverlies in Nederland
 
-Changes made via Lovable will be committed automatically to this repo.
+### 2. Over Mij (`/over-mij`)
+- Persoonlijk verhaal van 300 woorden
+- Kwalificaties en certificeringen
+- Persoonlijke filosofie over gezond leven
+- Praktijk informatie
+- Werkwijze en aanpak
 
-**Use your preferred IDE**
+### 3. Diensten (`/diensten`)
+- **Voedingsadvies**: Individueel en groep
+- **Afvalcoaching**: 12-weken programma
+- **Lifestyle Coaching**: Holistische begeleiding
+- **Online Begeleiding**: Flexibele video-consultaties
+- Prijsinformatie per dienst
+- Veelgestelde vragen
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### 4. Blog (`/blog`)
+- 5 voorbeeldblog posts:
+  - "Waarom Diëten Niet Werken"
+  - "5 Simpele Tips voor Gezonder Eten"
+  - "Stress en Gewicht: Het Verband"
+  - "Seizoensgebonden Voeding"
+  - "Beweging en Voeding Combineren"
+- Categoriefiltering
+- Zoekfunctionaliteit
+- Newsletter aanmelding
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### 5. Contact (`/contact`)
+- Contactformulier met email integratie
+- Praktijkadres en openingstijden
+- Verschillende consultatie opties
+- Google Maps integratie
+- Online afspraak maken
 
-Follow these steps:
+## 🎨 Design Specificaties
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+### Kleurenschema
+- **Primair**: Natuurgroen (#4CAF50)
+- **Secundair**: Zachte blauw (#2196F3)
+- **Accent**: Warm oranje (#FF9800)
+- **Achtergrond**: Crème wit (#FAFAFA)
+- **Tekst**: Donkergrijs (#333333)
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+### Typografie
+- **Headers**: Moderne sans-serif
+- **Body tekst**: Leesbare serif
+- **Grootte**: 16px basis, responsive
+- **Lijnhoogte**: 1.6 voor optimale leesbaarheid
 
-# Step 3: Install the necessary dependencies.
-npm i
+### Layout Principes
+- Minimalistisch en schoon design
+- Veel witruimte voor rust en focus
+- Consistente spacing en alignment
+- Visuele hiërarchie door typografie
+- Toegankelijke kleurcontrasten
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+## 🚀 Technische Stack
+
+- **Frontend**: React 18 met TypeScript
+- **Styling**: Tailwind CSS
+- **UI Components**: Radix UI (shadcn/ui)
+- **Routing**: React Router
+- **Icons**: Lucide React
+- **Build Tool**: Vite
+- **Package Manager**: npm/yarn
+
+## 📱 Responsive Design
+
+De website is volledig responsive en geoptimaliseerd voor:
+- **Desktop**: 1200px+
+- **Tablet**: 768px - 1199px
+- **Mobile**: 320px - 767px
+
+## 🔍 SEO Optimalisatie
+
+### On-Page SEO
+- ✅ Semantische HTML structuur
+- ✅ Meta titles en descriptions
+- ✅ Alt teksten voor afbeeldingen
+- ✅ Heading hiërarchie (H1-H6)
+- ✅ Internal linking
+- ✅ Clean URLs
+
+### Technical SEO
+- ✅ Sitemap.xml
+- ✅ Robots.txt
+- ✅ Schema.org markup
+- ✅ Open Graph tags
+- ✅ Twitter Cards
+- ✅ Canonical URLs
+
+### Local SEO
+- ✅ Google My Business integratie
+- ✅ Lokale keywords
+- ✅ Adres en contactgegevens
+- ✅ Openingstijden
+- ✅ Lokale schema markup
+
+## 🎯 Content Strategie
+
+### Tone of Voice
+- Warm en persoonlijk
+- Professioneel maar toegankelijk
+- Motiverend en bemoedigend
+- Wetenschappelijk onderbouwd
+- Geen medische claims
+
+### Call-to-Actions
+- "Boek een gratis intake gesprek"
+- "Start jouw gezonde reis vandaag"
+- "Ontdek jouw persoonlijke plan"
+- "Neem contact op voor advies"
+
+### Content Richtlijnen
+- Focus op duurzame lifestyle verandering
+- Benadruk persoonlijke begeleiding
+- Vermijd dieet-terminologie
+- Gebruik Nederlandse statistieken
+- Wetenschappelijke onderbouwing
+
+## 🛠️ Installatie & Setup
+
+```bash
+# Clone de repository
+git clone [repository-url]
+
+# Navigeer naar de project directory
+cd vitallife-coaching-website
+
+# Installeer dependencies
+npm install
+
+# Start development server
 npm run dev
+
+# Build voor productie
+npm run build
+
+# Preview productie build
+npm run preview
 ```
 
-**Edit a file directly in GitHub**
+## 📊 Analytics & Tracking
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Google Analytics
+- Pageviews tracking
+- Event tracking voor formulieren
+- Conversion tracking
+- User behavior analysis
 
-**Use GitHub Codespaces**
+### Belangrijke Metrics
+- Contactformulier conversies
+- Blog engagement
+- Tijd op pagina
+- Bounce rate
+- Mobile vs desktop usage
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## 🔒 Privacy & GDPR
 
-## What technologies are used for this project?
+### Privacy Maatregelen
+- Cookie consent banner
+- Privacy policy
+- Data minimalisatie
+- Secure form handling
+- GDPR compliant data processing
 
-This project is built with:
+### Cookie Categorieën
+- **Noodzakelijk**: Functionaliteit
+- **Analytisch**: Google Analytics
+- **Marketing**: Toekomstige integraties
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## 📞 Contact & Support
 
-## How can I deploy this project?
+Voor technische vragen of ondersteuning:
+- **Email**: tech@vitallifecoaching.nl
+- **Telefoon**: 06-12345678
 
-Simply open [Lovable](https://lovable.dev/projects/02b271a5-be06-4bc7-b0cd-0b0d710622c1) and click on Share -> Publish.
+Voor inhoudelijke vragen:
+- **Email**: info@vitallifecoaching.nl
+- **Website**: https://vitallifecoaching.nl
 
-## Can I connect a custom domain to my Lovable project?
+## 📝 Changelog
 
-Yes, you can!
+### v1.0.0 (2024-01-15)
+- Initial release
+- Complete website met alle pagina's
+- Responsive design
+- SEO optimalisatie
+- Contact formulier
+- Blog functionaliteit
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## 🤝 Contributing
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+Voor bijdragen aan de website:
+1. Fork de repository
+2. Maak een feature branch
+3. Commit je changes
+4. Push naar de branch
+5. Open een Pull Request
+
+## 📄 Licentie
+
+© 2024 VitalLife Coaching. Alle rechten voorbehouden.
+
+---
+
+**Gebouwd met ❤️ voor Maria van der Berg en haar klanten**
